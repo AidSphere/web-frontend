@@ -19,7 +19,7 @@ const eslintConfig = [
   // Extends legacy `.eslintrc`-style configurations
   ...compat.extends(
     "next/core-web-vitals",
-    "plugin:tailwindcss/recommended",
+    "plugin:tailwindcss/recommended",      // comment this when eslint errors come from ui libraries   
     "prettier"
   ),
 
@@ -32,10 +32,11 @@ const eslintConfig = [
   {
     plugins: {
       "@typescript-eslint": typescriptEslintPlugin,
-      tailwindcss: tailwindcssPlugin,
+      tailwindcss: tailwindcssPlugin,               // comment this when eslint errors come from ui libraries 
     },
     rules: {
-      "tailwindcss/classnames-order": "off",
+      "tailwindcss/classnames-order": "off",     
+      // 'react/no-unescaped-entities': 'off',        // uncomment if you want to put unescaped characters in JSX
     },
   },
 
@@ -52,10 +53,11 @@ const eslintConfig = [
     },
     plugins: {
       "@typescript-eslint": typescriptEslintPlugin,
-      tailwindcss: tailwindcssPlugin,
+      tailwindcss: tailwindcssPlugin,            // comment this when eslint errors come from ui libraries 
     },
     rules: {
       "tailwindcss/classnames-order": "off",
+      // 'react/no-unescaped-entities': 'off',        // uncomment if you want to put unescaped characters in TSX
     },
   },
 
