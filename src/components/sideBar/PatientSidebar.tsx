@@ -24,14 +24,19 @@ import {
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { data } from '@/components/sideBar/navData/patientNavData';
+import { UserDetailsType } from './types/userDetailsType';
+import { NavUser } from './nav-user';
 
 /**
  * sidebar has two type of navitems ---> single nav items , nav items with sub menu items
  */
 
 export function PatientSidebar({
+  userData,
   ...props
-}: React.ComponentProps<typeof Sidebar>) {
+}: React.ComponentProps<typeof Sidebar> & {
+  userData: UserDetailsType;
+}) {
   /**
    * get pageName when sidebar is rendered first time.(replace '-' in path with ' ' when the name has more than 1 words)
    * set the pageName to find active navigation name in the sidebar.
@@ -138,7 +143,9 @@ export function PatientSidebar({
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      {/* <SidebarFooter><NavUser user={user} /></SidebarFooter> */}
+      <SidebarFooter>
+        <NavUser user={userData} />
+      </SidebarFooter>
     </Sidebar>
   );
 }

@@ -7,6 +7,13 @@ import { PatientSidebar } from '../components/sideBar/PatientSidebar';
 import TopNavBar from '@/components/navBarTopRight';
 import { Separator } from '@radix-ui/react-separator';
 import DynamicBreadcrumb from '@/components/dynamicBreadcrumb';
+import { UserDetailsType } from '@/components/sideBar/types/userDetailsType';
+
+const user: UserDetailsType = {
+  name: 'ushan',
+  email: 'u@example.com',
+  Image: '',
+};
 
 export default function PatientLayout({
   children,
@@ -15,7 +22,7 @@ export default function PatientLayout({
 }>) {
   return (
     <SidebarProvider>
-      <PatientSidebar />
+      <PatientSidebar userData={user} />
       <SidebarInset className='dark:bg-background'>
         <header className='bg-accent flex h-16 shrink-0 items-center justify-between pr-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12'>
           <div className='flex items-center gap-2 px-4'>
