@@ -8,6 +8,8 @@ body {
 
 @layer base {
   :root {
+    --primary: 333 95% 60%;
+    --secondary: 210 100% 60%;
     --radius: 0.5rem;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -28,4 +30,9 @@ body {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 329 91.2% 59.8%;
   }
+}
+
+@theme inline {
+  primary: 'var(--primary)';
+	secondary: 'var(--secondary)';
 }
