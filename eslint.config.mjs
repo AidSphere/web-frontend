@@ -20,6 +20,7 @@ const eslintConfig = [
   ...compat.extends(
     "next/core-web-vitals",
     // "plugin:tailwindcss/recommended",      // comment this when eslint errors come from ui libraries   
+    // "plugin:tailwindcss/recommended",      // comment this when eslint errors come from ui libraries   
     "prettier"
   ),
 
@@ -32,6 +33,7 @@ const eslintConfig = [
   {
     plugins: {
       "@typescript-eslint": typescriptEslintPlugin,
+      // tailwindcss: tailwindcssPlugin,               // comment this when eslint errors come from ui libraries 
       // tailwindcss: tailwindcssPlugin,               // comment this when eslint errors come from ui libraries 
     },
     rules: {
@@ -51,10 +53,10 @@ const eslintConfig = [
         tsconfigRootDir: __dirname,
       },
     },
-    plugins: {
-      "@typescript-eslint": typescriptEslintPlugin,
-      // tailwindcss: tailwindcssPlugin,            // comment this when eslint errors come from ui libraries 
-    },
+    // plugins: {
+    //   "@typescript-eslint": typescriptEslintPlugin,
+    //   // tailwindcss: tailwindcssPlugin,            // comment this when eslint errors come from ui libraries 
+    // },
     rules: {
       "tailwindcss/classnames-order": "off",
       // 'react/no-unescaped-entities': 'off',        // uncomment if you want to put unescaped characters in TSX
