@@ -47,8 +47,9 @@ const DonorListCard: React.FC<DonorFeedCardProps> = ({
           <h1 className='text-lg font-bold'>LKR {price}</h1>
           <Heart
             size={24}
-            fill={isLiked ? 'red' : 'none'}
-            className={`cursor-pointer transition-colors ${isLiked ? 'text-red-600' : 'text-red-700'} `}
+            fill={isLiked ? 'red' : 'none'} // Fills completely when liked
+            stroke='red' // Keeps the outline red
+            className='cursor-pointer transition-colors duration-200'
             onClick={() => setIsLiked(!isLiked)}
           />
         </div>
