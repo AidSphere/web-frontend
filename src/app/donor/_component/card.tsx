@@ -23,10 +23,13 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
   note,
 }) => {
   return (
-    <Card isPressable className='m-5 h-72 w-fit overflow-hidden'>
-      <CardBody className='p-7'>
+    <Card
+      isPressable
+      className='m-5 h-72 w-fit overflow-hidden rounded-lg bg-gray-900 text-white shadow-lg'
+    >
+      <CardBody className='p-5'>
         <div className='grid h-full grid-cols-3 gap-5'>
-          {/* for the image */}
+          {/* Left Section - Image */}
           <div className='col-span-1'>
             <Image
               alt='Card background'
@@ -35,17 +38,18 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
               width={270}
             />
           </div>
+          {/* Right Section - Details */}
           <div className='col-span-2 grid grid-cols-2 grid-rows-2'>
-            <div>
-              <h1>{name}</h1>
-              <h1>{email}</h1>
-              <h1>{company}</h1>
-              <h1>Total Cost:{price}</h1>
-              <h1 className='mb-1 text-red-500'>
-                Remaining Needed:{remaining}
+            <div className='space-y-1'>
+              <h1 className='text-lg font-semibold'>{name}</h1>
+              <h1 className='text-sm text-gray-300'>{email}</h1>
+              <h1 className='text-sm'>{company}</h1>
+              <h1 className='text-sm'>Total Cost: {price}</h1>
+              <h1 className='text-sm text-red-500'>
+                Remaining Needed: {remaining}
               </h1>
             </div>
-            <div>
+            <div className='flex justify-end'>
               <Progress
                 aria-label='Progress'
                 className='max-w-md'
@@ -56,14 +60,21 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
               />
             </div>
             <div className='col-span-2 flex flex-col'>
-              <h1 className='text-lg font-bold'>Note to Donator</h1>
-              <h1>{note}</h1>
+              <h1 className='text-sm font-semibold text-gray-400'>
+                Note to Donor
+              </h1>
+              <h1 className='text-md mt-1 italic text-gray-300'>{note}</h1>
             </div>
           </div>
         </div>
+        {/* Buttons */}
         <div className='flex justify-end'>
-          <Button className='mr-5'>Sponsor</Button>
-          <Button className='mr-5'>View Donation</Button>
+          <Button className='mr-5 rounded-md bg-gray-600 text-white'>
+            Sponsor
+          </Button>
+          <Button className='mr-5 rounded-md bg-gray-600 text-white'>
+            View Donation
+          </Button>
         </div>
       </CardBody>
     </Card>
