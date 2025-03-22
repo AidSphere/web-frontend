@@ -1,9 +1,11 @@
 'use client';
 import React from 'react';
-import { Button, Card, CardBody, Image } from '@heroui/react';
+import { Button, Card, CardBody, Image, Link } from '@heroui/react';
 import { Progress } from '@heroui/react';
+import SponsorFormModal from '../home/_components/sponsorformModel';
 
 interface DonorFeedCardProps {
+  id: number;
   name: string;
   email: string;
   company: string;
@@ -14,6 +16,7 @@ interface DonorFeedCardProps {
 }
 
 const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
+  id,
   name,
   email,
   company,
@@ -69,10 +72,10 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
         {/* Buttons */}
         <div className='flex justify-end'>
           <Button className='mr-5 rounded-md bg-gray-600 text-white'>
-            Sponsor
+            <SponsorFormModal data={{ id, name }}>Sponsor</SponsorFormModal>
           </Button>
           <Button className='mr-5 rounded-md bg-gray-600 text-white'>
-            View Donation
+            <Link href={`home/${id}/`}>View Donation</Link>
           </Button>
         </div>
       </CardBody>
