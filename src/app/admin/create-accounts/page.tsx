@@ -67,7 +67,7 @@ const CreateAccount = () => {
   };
 
   return (
-    <div className='flex flex-col items-center p-5'>
+    <div className='flex flex-col items-center'>
       <h1 className='text-center text-2xl font-bold'>Create Account</h1>
 
       {/* Radio Button Group */}
