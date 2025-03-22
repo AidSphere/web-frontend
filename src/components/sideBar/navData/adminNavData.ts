@@ -11,7 +11,7 @@ export const data: NavigationArray = [
   {
     type: 'main',
     name: 'Home',
-    url: '/admin/home',
+    url: '/admin/',
     icon: FileChartLine,
   },
   {
@@ -23,17 +23,17 @@ export const data: NavigationArray = [
   {
     type: 'sub',
     title: 'Request Approval',
-    url: '/doctor/examination',
+    url: '/admin/request-approval',
     icon: Stethoscope,
     isActive: true,
     items: [
       {
         name: 'Patient Requests',
-        url: '/patient-requests',
+        url: '/admin/request-approval/patient-requests',
       },
       {
         name: 'Drug Importer Requests',
-        url: '/drug-importer-requests',
+        url: '/admin/request-approval/drug-importer-requests',
       },
     ],
   },
