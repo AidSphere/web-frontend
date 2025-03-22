@@ -16,7 +16,6 @@
 
 eslint.config.mjs
 tailwind.config.ts
-globals.css
 next.config.ts
 .prettierrc.json
 src/lib/utils.ts

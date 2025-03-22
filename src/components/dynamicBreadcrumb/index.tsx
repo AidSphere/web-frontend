@@ -17,7 +17,7 @@ function DynamicBreadcrumb() {
     name: path.charAt(0).toUpperCase() + path.slice(1),
     path: '/' + pathNames.slice(0, i + 1).join('/'),
   }));
-  // console.log(pathItems);
+  console.log(pathItems);
   return (
     <div>
       <Breadcrumb>
