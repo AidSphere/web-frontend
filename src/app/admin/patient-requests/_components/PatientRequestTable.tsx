@@ -1,8 +1,8 @@
 'use client';
 import React, { SVGProps } from 'react';
-import { addToast } from '@heroui/react';
 import {
   Table,
+  addToast,
   TableHeader,
   TableColumn,
   TableBody,
@@ -21,9 +21,9 @@ import {
   Selection,
   ChipProps,
   SortDescriptor,
-  ToastProvider,
 } from '@heroui/react';
 import { Ban, CircleCheckBig, Eye } from 'lucide-react';
+import { ViewRequestModel } from '@/app/admin/_components';
 
 export type IconSvgProps = SVGProps<SVGSVGElement> & {
   size?: number;
@@ -255,6 +255,7 @@ export const users = [
     name: 'Frank Harrison',
     city: 'Austin',
     phone: '888-777-6666',
+    date: '2021-09-09',
     avatar: 'https://i.pravatar.cc/150?img=4',
     email: 'frank.harrison@example.com',
     status: 'vacation',
@@ -366,12 +367,14 @@ export default function PatientRequestTable() {
         return (
           <div className='flex items-center justify-end gap-2'>
             <Tooltip content='Details'>
-              <div
-                typeof='button'
-                className='cursor-pointer text-lg text-default-400 active:opacity-50'
-              >
-                <Eye />
-              </div>
+              <ViewRequestModel data={user}>
+                <div
+                  typeof='button'
+                  className='cursor-pointer text-lg text-default-400 active:opacity-50'
+                >
+                  <Eye />
+                </div>
+              </ViewRequestModel>
             </Tooltip>
             <div
               typeof='button'
