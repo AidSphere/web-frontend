@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +12,7 @@ import PdfUploader from '@/app/patient/components/PdfUploader';
 import { DonationRequestSchema } from '@/app/patient/_types/donation-request-types';
 
 // Import the PrescriptionInput component
-import PrescriptionInput from '@/app/patient/components/PrescriptionInput';
+import BasicInfoInput from '@/app/patient/components/BasicInfoInput';
 import { Form } from '@/components/ui/form';
 
 // Create a schema for the complete form
@@ -23,14 +22,14 @@ const medicalRecordSchema = DonationRequestSchema.extend({
   notes: z.string().optional(),
 });
 
-type MedicalRecordFormValues = z.infer<typeof medicalRecordSchema>;
+type DonationRequestFormValues = z.infer<typeof medicalRecordSchema>;
 
-export default function MedicalRecordForm() {
+export default function DonationRequestForm() {
   const [activeTab, setActiveTab] = useState('prescription');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const form = useForm<MedicalRecordFormValues>({
+  const form = useForm<DonationRequestFormValues>({
     resolver: zodResolver(medicalRecordSchema),
     defaultValues: {
       requestName: '',
@@ -44,7 +43,7 @@ export default function MedicalRecordForm() {
     mode: 'onBlur',
   });
 
-  const onSubmit = async (data: MedicalRecordFormValues) => {
+  const onSubmit = async (data: DonationRequestFormValues) => {
     try {
       setIsSubmitting(true);
 
@@ -168,7 +167,7 @@ export default function MedicalRecordForm() {
               <CardContent className='p-6'>
                 <TabsContent value='prescription' className='mt-0 space-y-6'>
                   {/* Prescription Input Section */}
-                  <PrescriptionInput control={form.control} />
+                  <BasicInfoInput control={form.control} />
 
                   <div className='flex justify-end'>
                     <Button type='button' onClick={goToNextTab}>

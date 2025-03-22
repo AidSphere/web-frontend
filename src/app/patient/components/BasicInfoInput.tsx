@@ -21,11 +21,11 @@ import {
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
-interface PrescriptionInputProps {
+interface BasicInfoInputProps {
   control: Control<DonationRequestFormValues>;
 }
 
-export default function PrescriptionInput({ control }: PrescriptionInputProps) {
+export default function BasicInfoInput({ control }: BasicInfoInputProps) {
   // Use field array for dynamic medicine items
   const { fields, append, remove } = useFieldArray({
     control,
@@ -102,7 +102,7 @@ export default function PrescriptionInput({ control }: PrescriptionInputProps) {
                 <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder='Tell us a little bit about yourself'
+                    placeholder='Tell a little bit about your need'
                     // className='resize-none'
                     {...field}
                   />
