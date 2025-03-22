@@ -1,5 +1,5 @@
 import PatientRequestTable from './_components/PatientRequestTable';
-
+import { ToastProvider } from '@heroui/react';
 const PatientRequest = () => {
   return (
     <div>
