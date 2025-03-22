@@ -1,4 +1,8 @@
-import { FileChartColumnIncreasing, LayoutDashboard } from 'lucide-react';
+import {
+  FileChartColumnIncreasing,
+  HandCoins,
+  LayoutDashboard,
+} from 'lucide-react';
 import { NavigationArray } from '../types/navigationItemTypes';
 
 //  This contains sidebar navigation items.
@@ -13,6 +17,12 @@ export const data: NavigationArray = [
     name: 'Overview',
     url: '/patient',
     icon: LayoutDashboard,
+  },
+  {
+    type: 'main',
+    name: 'Donations',
+    url: '/patient/donation',
+    icon: HandCoins,
   },
   {
     type: 'sub',
@@ -34,11 +44,5 @@ export const data: NavigationArray = [
         url: '/patient/financial-reports',
       },
     ],
-  },
-  {
-    type: 'main',
-    name: 'Examination',
-    url: '/patient/examination',
-    icon: LayoutDashboard,
   },
 ];
