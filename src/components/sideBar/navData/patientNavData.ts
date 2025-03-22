@@ -18,30 +18,30 @@ export const data: NavigationArray = [
     url: '/patient',
     icon: LayoutDashboard,
   },
-  {
-    type: 'main',
-    name: 'Donations',
-    url: '/patient/donation',
-    icon: HandCoins,
-  },
+  // {
+  //   type: 'main',
+  //   name: 'Donations',
+  //   url: '/patient/donation',
+  //   icon: HandCoins,
+  // },
   {
     type: 'sub',
-    title: 'Reports',
+    title: 'Donations',
     url: '',
-    icon: FileChartColumnIncreasing,
+    icon: HandCoins,
     isActive: true,
     items: [
       {
-        name: 'Appointment Reports',
-        url: '/patient/appointment-reports',
+        name: 'Donation Requests',
+        url: '/patient/donation/requests',
       },
       {
-        name: 'Patient Reports',
-        url: '/patient/patient-reports',
-      },
-      {
-        name: 'Financial Reports',
+        name: 'Approved Donations',
         url: '/patient/financial-reports',
+      },
+      {
+        name: 'Donation History',
+        url: '/patient/patient-reports',
       },
     ],
   },

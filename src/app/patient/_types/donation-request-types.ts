@@ -6,12 +6,18 @@ export const medicineItemSchema = z.object({
 });
 
 // Extended schema with patient information
-export const DonationRequestSchema = z.object({
+export const BasicInfoSchema = z.object({
   // basic information
   requestName: z.string().min(2, { message: 'Patient name is required' }),
   expectedDate: z.date().min(new Date(), { message: 'Date must be in future' }),
   description: z.string().min(1, { message: 'Description is required' }),
-
+  // prescriptionFile: z
+  //   .instanceof(File)
+  //   .refine(
+  //     (file) =>
+  //       ['image/png', 'image/jpg', 'application/pdf'].includes(file.type),
+  //     { message: 'Invalid file type' }
+  //   ),
   // Prescription items
   items: z
     .array(medicineItemSchema)
@@ -19,4 +25,4 @@ export const DonationRequestSchema = z.object({
 });
 
 export type MedicineItem = z.infer<typeof medicineItemSchema>;
-export type DonationRequestFormValues = z.infer<typeof DonationRequestSchema>;
+export type BasicInfoFormValues = z.infer<typeof BasicInfoSchema>;

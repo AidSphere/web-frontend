@@ -94,6 +94,20 @@ export default function BasicInfoInput({ control }: BasicInfoInputProps) {
             )}
           />
 
+          {/* <FormField
+            control={control}
+            name='prescriptionFile'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Prescription File</FormLabel>
+                <FormControl>
+                  <Input type='file' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          /> */}
+
           <FormField
             control={control}
             name='description'
@@ -145,7 +159,7 @@ export default function BasicInfoInput({ control }: BasicInfoInputProps) {
             {fields.map((field, index) => (
               <div
                 key={field.id}
-                className='flex items-start gap-3 rounded-md border bg-gray-50 p-3'
+                className='flex items-start gap-3 rounded-md border bg-gray-50 p-3 dark:bg-slate-950'
               >
                 <div className='grid flex-1 grid-cols-1 gap-3 md:grid-cols-2'>
                   <FormField

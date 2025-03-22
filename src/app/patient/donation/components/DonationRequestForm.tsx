@@ -9,20 +9,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import ImageUploader from '@/app/patient/components/ImageUploader';
 import PdfUploader from '@/app/patient/components/PdfUploader';
-import { DonationRequestSchema } from '@/app/patient/_types/donation-request-types';
+import { BasicInfoSchema } from '@/app/patient/_types/donation-request-types';
 
 // Import the PrescriptionInput component
 import BasicInfoInput from '@/app/patient/components/BasicInfoInput';
 import { Form } from '@/components/ui/form';
 
 // Create a schema for the complete form
-const medicalRecordSchema = DonationRequestSchema.extend({
+const DonationRequestSchema = BasicInfoSchema.extend({
   imageFiles: z.array(z.any()).optional(),
   pdfFiles: z.array(z.any()).optional(),
   notes: z.string().optional(),
 });
 
-type DonationRequestFormValues = z.infer<typeof medicalRecordSchema>;
+type DonationRequestFormValues = z.infer<typeof DonationRequestSchema>;
 
 export default function DonationRequestForm() {
   const [activeTab, setActiveTab] = useState('prescription');
@@ -30,7 +30,7 @@ export default function DonationRequestForm() {
   const { toast } = useToast();
 
   const form = useForm<DonationRequestFormValues>({
-    resolver: zodResolver(medicalRecordSchema),
+    resolver: zodResolver(DonationRequestSchema),
     defaultValues: {
       requestName: '',
       description: '',

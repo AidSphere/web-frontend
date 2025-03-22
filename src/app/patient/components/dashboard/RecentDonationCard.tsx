@@ -39,6 +39,7 @@ export const RecentDonationCard = ({
                 alt='doner'
                 width={40}
                 height={40}
+                className='rounded-full'
               />
             </section>
             {/* name, date amount detail section */}
@@ -82,7 +83,7 @@ export const RecentDonationCard = ({
           variant='light'
           radius='sm'
           color='primary'
-          onClick={() => {
+          onPress={() => {
             setIsCollapsed((prev) => !prev);
           }}
           className='mt-2 place-self-center text-base font-bold lg:place-self-end'
