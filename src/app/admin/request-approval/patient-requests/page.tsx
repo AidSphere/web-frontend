@@ -1,4 +1,4 @@
-import PatientRequestTable from './_components/PatientRequestTable';
+import PatientRequestTable from '../_components/PatientRequestTable';
 const PatientRequest = () => {
   return (
     <div>
