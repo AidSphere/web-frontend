@@ -332,7 +332,7 @@ const DonorRegistration = () => {
           <div className='mt-6 text-center text-sm text-gray-600'>
             Already have an account?{' '}
             <a
-              href='/login'
+              href='/auth/'
               className='font-medium text-black hover:text-gray-700'
             >
               Sign in
