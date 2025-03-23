@@ -24,12 +24,12 @@ export const data: NavigationArray = [
   //   url: '/patient/donation',
   //   icon: HandCoins,
   // },
-  {
-    type: 'main',
-    name: 'Donations',
-    url: '/patient/donation',
-    icon: HandCoins,
-  },
+  // {
+  //   type: 'main',
+  //   name: 'Donations',
+  //   url: '/patient/donation',
+  //   icon: HandCoins,
+  // },
   {
     type: 'sub',
     title: 'Donations',
