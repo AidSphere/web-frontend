@@ -14,6 +14,7 @@ import { BasicInfoSchema } from '@/app/patient/_types/donation-request-types';
 // Import the PrescriptionInput component
 import BasicInfoInput from '@/app/patient/components/BasicInfoInput';
 import { Form } from '@/components/ui/form';
+import Link from 'next/link';
 
 // Create a schema for the complete form
 const DonationRequestSchema = BasicInfoSchema.extend({
@@ -251,9 +252,17 @@ export default function DonationRequestForm() {
                     >
                       Back: Images
                     </Button>
-                    <Button type='submit' disabled={isSubmitting}>
-                      {isSubmitting ? 'Submitting...' : 'Submit Medical Record'}
-                    </Button>
+                    {form.formState.isSubmitSuccessful ? (
+                      <Button type='submit' disabled={isSubmitting}>
+                        <Link href='/patient/'>Back to home</Link>
+                      </Button>
+                    ) : (
+                      <Button type='submit' disabled={isSubmitting}>
+                        {isSubmitting
+                          ? 'Submitting...'
+                          : 'Submit Medical Record'}
+                      </Button>
+                    )}
                   </div>
                 </TabsContent>
               </CardContent>

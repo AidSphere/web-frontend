@@ -36,12 +36,12 @@ export const data: NavigationArray = [
         url: '/patient/donation/requests',
       },
       {
-        name: 'Approved Donations',
-        url: '/patient/financial-reports',
+        name: 'Ongoing Donations',
+        url: '/patient/donation/ongoing',
       },
       {
-        name: 'Donation History',
-        url: '/patient/patient-reports',
+        name: 'Select Drug Importer',
+        url: '/patient/donation/select-importer',
       },
     ],
   },
