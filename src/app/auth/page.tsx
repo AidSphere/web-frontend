@@ -65,7 +65,6 @@ export default function Login() {
               <Tab key='patient' title='Patient' />
               <Tab key='drugImporter' title='Drug Importer' />
               <Tab key='donor' title='Donor' />
-              <Tab key='admin' title='Admin' />
             </Tabs>
           </div>
           <CardContent className='space-y-4'>
