@@ -87,7 +87,6 @@ export default function DonationRequestForm() {
         formData.append('notes', data.notes);
       }
 
-      // Here you would send the formData to your API
       // const response = await fetch('/api/medical-records', {
       //   method: 'POST',
       //   body: formData,
