@@ -4,6 +4,7 @@ import { donationProgress } from './_types/dashboardTypes';
 import { RecentDonationCard } from './components/dashboard/RecentDonationCard';
 import { OrdersTable } from './components/dashboard/OrdersTable';
 import { sampleOrders, recentDonations } from './sampleData';
+import Link from 'next/link';
 
 const donationsProgress: donationProgress[] = [
   {
@@ -75,7 +76,9 @@ const PatientDashboard = () => {
               radius='sm'
               className='bg-primary text-medium'
             >
-              Quotation reviews
+              <Link href='/patient/donation/create-request'>
+                Add New Request
+              </Link>
             </Button>
             <Button
               size='md'

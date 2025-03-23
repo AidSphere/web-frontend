@@ -20,7 +20,7 @@ function DynamicBreadcrumb() {
   // console.log(pathItems);
   return (
     <div>
-      <Breadcrumb>
+      {/* <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem className='hidden md:block'>
             <BreadcrumbLink href='#'>Building Your Application</BreadcrumbLink>
@@ -29,6 +29,21 @@ function DynamicBreadcrumb() {
           <BreadcrumbItem>
             <BreadcrumbPage>Data Fetching</BreadcrumbPage>
           </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb> */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href='/'>Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          {pathItems.map((item, i) => (
+            <React.Fragment key={item.path}>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href={item.path}>{item.name}</BreadcrumbLink>
+              </BreadcrumbItem>
+            </React.Fragment>
+          ))}
         </BreadcrumbList>
       </Breadcrumb>
     </div>

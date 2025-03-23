@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,28 +9,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import ImageUploader from '@/app/patient/components/ImageUploader';
 import PdfUploader from '@/app/patient/components/PdfUploader';
-import { DonationRequestSchema } from '@/app/patient/_types/donation-request-types';
+import { BasicInfoSchema } from '@/app/patient/_types/donation-request-types';
 
 // Import the PrescriptionInput component
-import PrescriptionInput from '@/app/patient/components/PrescriptionInput';
+import BasicInfoInput from '@/app/patient/components/BasicInfoInput';
 import { Form } from '@/components/ui/form';
+import Link from 'next/link';
 
 // Create a schema for the complete form
-const medicalRecordSchema = DonationRequestSchema.extend({
+const DonationRequestSchema = BasicInfoSchema.extend({
   imageFiles: z.array(z.any()).optional(),
   pdfFiles: z.array(z.any()).optional(),
   notes: z.string().optional(),
 });
 
-type MedicalRecordFormValues = z.infer<typeof medicalRecordSchema>;
+type DonationRequestFormValues = z.infer<typeof DonationRequestSchema>;
 
-export default function MedicalRecordForm() {
+export default function DonationRequestForm() {
   const [activeTab, setActiveTab] = useState('prescription');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const form = useForm<MedicalRecordFormValues>({
-    resolver: zodResolver(medicalRecordSchema),
+  const form = useForm<DonationRequestFormValues>({
+    resolver: zodResolver(DonationRequestSchema),
     defaultValues: {
       requestName: '',
       description: '',
@@ -44,7 +44,7 @@ export default function MedicalRecordForm() {
     mode: 'onBlur',
   });
 
-  const onSubmit = async (data: MedicalRecordFormValues) => {
+  const onSubmit = async (data: DonationRequestFormValues) => {
     try {
       setIsSubmitting(true);
 
@@ -168,7 +168,7 @@ export default function MedicalRecordForm() {
               <CardContent className='p-6'>
                 <TabsContent value='prescription' className='mt-0 space-y-6'>
                   {/* Prescription Input Section */}
-                  <PrescriptionInput control={form.control} />
+                  <BasicInfoInput control={form.control} />
 
                   <div className='flex justify-end'>
                     <Button type='button' onClick={goToNextTab}>
@@ -252,9 +252,17 @@ export default function MedicalRecordForm() {
                     >
                       Back: Images
                     </Button>
-                    <Button type='submit' disabled={isSubmitting}>
-                      {isSubmitting ? 'Submitting...' : 'Submit Medical Record'}
-                    </Button>
+                    {form.formState.isSubmitSuccessful ? (
+                      <Button type='submit' disabled={isSubmitting}>
+                        <Link href='/patient/'>Back to home</Link>
+                      </Button>
+                    ) : (
+                      <Button type='submit' disabled={isSubmitting}>
+                        {isSubmitting
+                          ? 'Submitting...'
+                          : 'Submit Medical Record'}
+                      </Button>
+                    )}
                   </div>
                 </TabsContent>
               </CardContent>
