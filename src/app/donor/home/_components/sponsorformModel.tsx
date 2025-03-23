@@ -133,7 +133,7 @@ export default function SponsorFormModal({
                       rules={{ required: 'Please select a visibility option' }}
                       render={({ field }) => (
                         <RadioGroup
-                          label='Select your favorite city'
+                          label='Select message visibility'
                           {...field}
                         >
                           <Radio
