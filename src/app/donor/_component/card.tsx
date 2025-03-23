@@ -26,10 +26,7 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
   note,
 }) => {
   return (
-    <Card
-      isPressable
-      className='m-5 h-fit w-fit rounded-3xl bg-gray-900 text-white shadow-xl'
-    >
+    <Card isPressable className='m-5 h-fit w-fit rounded-3xl shadow-xl'>
       <CardBody className='p-5'>
         <div className='grid h-full grid-cols-3 gap-2'>
           <div className='col-span-1'>
@@ -71,10 +68,10 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
         </div>
         {/* Buttons */}
         <div className='flex justify-end'>
-          <Button className='mr-5 rounded-md bg-gray-600 text-white'>
+          <Button className='mr-5 rounded-md'>
             <SponsorFormModal data={{ id, name }}>Sponsor</SponsorFormModal>
           </Button>
-          <Button className='mr-5 rounded-md bg-gray-600 text-white'>
+          <Button className='mr-5 rounded-md'>
             <Link href={`home/${id}/`}>View Donation</Link>
           </Button>
         </div>

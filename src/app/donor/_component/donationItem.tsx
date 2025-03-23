@@ -8,12 +8,16 @@ interface DonorFeedCardProps {
   name: string;
   email: string;
   price: number;
+  url: string;
+  status: boolean;
 }
 
 const DonorHistoryCard: React.FC<DonorFeedCardProps> = ({
   name,
   email,
   price,
+  url,
+  status,
 }) => {
   return (
     <Card isPressable className='w-3/4'>
@@ -21,7 +25,7 @@ const DonorHistoryCard: React.FC<DonorFeedCardProps> = ({
         <div className='col-span-1'>
           <div className='flex grid-cols-3 flex-row gap-3'>
             <div>
-              <Avatar src='https://i.pravatar.cc/150?u=a042581f4e29026024d' />
+              <Avatar src={url} />
             </div>
             <div>
               <h1>{name}</h1>
@@ -34,8 +38,8 @@ const DonorHistoryCard: React.FC<DonorFeedCardProps> = ({
         </div>
         <div className='col-span-1 flex items-center justify-center'>
           <div className='flex gap-4'>
-            <Chip variant='flat' color='success'>
-              Success
+            <Chip variant='flat' color={status ? 'success' : 'danger'}>
+              {status ? 'success' : 'Not success'}
             </Chip>
           </div>
         </div>

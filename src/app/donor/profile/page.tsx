@@ -126,6 +126,7 @@ const Profile = () => {
                 placeholder='First Name'
                 type='text'
                 name='firstName'
+                variant='bordered'
                 value={formData.firstName}
                 onChange={handleInputChange}
                 disabled={!isEditing}
@@ -139,6 +140,7 @@ const Profile = () => {
                 placeholder='Last Name'
                 type='text'
                 name='lastName'
+                variant='bordered'
                 value={formData.lastName}
                 onChange={handleInputChange}
                 disabled={!isEditing}
@@ -153,6 +155,7 @@ const Profile = () => {
                 type='text'
                 name='nicNumber'
                 value={formData.nicNumber}
+                variant='bordered'
                 onChange={handleInputChange}
                 disabled={!isEditing}
               />
@@ -167,6 +170,7 @@ const Profile = () => {
                 name='email'
                 value={formData.email}
                 onChange={handleInputChange}
+                variant='bordered'
                 disabled={!isEditing}
               />
               {errors.email && <p className='text-red-500'>{errors.email}</p>}
@@ -177,6 +181,7 @@ const Profile = () => {
                 type='text'
                 name='phoneNumber'
                 value={formData.phoneNumber}
+                variant='bordered'
                 onChange={handleInputChange}
                 disabled={!isEditing}
               />
@@ -186,10 +191,11 @@ const Profile = () => {
             </div>
             <div>
               <Input
-                placeholder='Something needed'
+                placeholder='Address'
                 type='text'
                 name='somethingNeeded'
                 value={formData.somethingNeeded}
+                variant='bordered'
                 onChange={handleInputChange}
                 disabled={!isEditing}
               />
