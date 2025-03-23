@@ -25,6 +25,12 @@ export const data: NavigationArray = [
   //   icon: HandCoins,
   // },
   {
+    type: 'main',
+    name: 'Donations',
+    url: '/patient/donation',
+    icon: HandCoins,
+  },
+  {
     type: 'sub',
     title: 'Donations',
     url: '',
