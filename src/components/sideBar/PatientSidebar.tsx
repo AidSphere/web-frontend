@@ -26,6 +26,7 @@ import Link from 'next/link';
 import { data } from '@/components/sideBar/navData/patientNavData';
 import { UserDetailsType } from './types/userDetailsType';
 import { NavUser } from './nav-user';
+import { PatientNavUser } from './patient-nav-user';
 
 /**
  * sidebar has two type of navitems ---> single nav items , nav items with sub menu items
@@ -144,7 +145,7 @@ export function PatientSidebar({
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={userData} />
+        <PatientNavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   );
