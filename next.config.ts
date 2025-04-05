@@ -1,11 +1,26 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
+
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+   reactStrictMode: true,
   swcMinify: true,
-  images: {
+  images:{
     domains: ['images.unsplash.com'],
-   
-  },
+    remotePatterns:[
+      {
+        protocol: 'https',
+        hostname: 'flowbite.com',
+        port: '',
+        pathname: '**',
+        search: '',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.qrserver.com'
+      }
+    ]
+  }
+  /* config options here */
 };
 
 module.exports = nextConfig;

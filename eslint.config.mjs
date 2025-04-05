@@ -16,12 +16,12 @@ const compat = new FlatCompat({
 
 
 const eslintConfig = [
-  // Extends legacy `.eslintrc`-style configurations
-  ...compat.extends(
-    "next/core-web-vitals",
-    "plugin:tailwindcss/recommended",      // comment this when eslint errors come from ui libraries   
-    "prettier"
-  ),
+  // // Extends legacy `.eslintrc`-style configurations
+  // ...compat.extends(
+  //   "next/core-web-vitals",
+  //   // "plugin:tailwindcss/recommended",      // comment this when eslint errors come from ui libraries   
+  //   "prettier"
+  // ),
 
   // Global configuration
   {
@@ -30,14 +30,14 @@ const eslintConfig = [
 
   // Global plugins and rules
   {
-    plugins: {
-      "@typescript-eslint": typescriptEslintPlugin,
-      tailwindcss: tailwindcssPlugin,               // comment this when eslint errors come from ui libraries 
-    },
-    rules: {
-      "tailwindcss/classnames-order": "off",     
-      // 'react/no-unescaped-entities': 'off',        // uncomment if you want to put unescaped characters in JSX
-    },
+    // plugins: {
+    //   "@typescript-eslint": typescriptEslintPlugin,
+    //   // tailwindcss: tailwindcssPlugin,               // comment this when eslint errors come from ui libraries 
+    // },
+    // rules: {
+    //   "tailwindcss/classnames-order": "off",     
+    //   // 'react/no-unescaped-entities': 'off',        // uncomment if you want to put unescaped characters in JSX
+    // },
   },
 
   // Overrides for TypeScript files
@@ -52,11 +52,11 @@ const eslintConfig = [
       },
     },
     plugins: {
-      "@typescript-eslint": typescriptEslintPlugin,
-      tailwindcss: tailwindcssPlugin,            // comment this when eslint errors come from ui libraries 
+      // "@typescript-eslint": typescriptEslintPlugin,
+      // // tailwindcss: tailwindcssPlugin,            // comment this when eslint errors come from ui libraries 
     },
     rules: {
-      "tailwindcss/classnames-order": "off",
+      //"tailwindcss/classnames-order": "off",
       // 'react/no-unescaped-entities': 'off',        // uncomment if you want to put unescaped characters in TSX
     },
   },

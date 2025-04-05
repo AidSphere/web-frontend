@@ -1,4 +1,8 @@
-import { FileChartColumnIncreasing, LayoutDashboard } from 'lucide-react';
+import {
+  FileChartColumnIncreasing,
+  HandCoins,
+  LayoutDashboard,
+} from 'lucide-react';
 import { NavigationArray } from '../types/navigationItemTypes';
 
 //  This contains sidebar navigation items.
@@ -14,31 +18,37 @@ export const data: NavigationArray = [
     url: '/patient',
     icon: LayoutDashboard,
   },
+  // {
+  //   type: 'main',
+  //   name: 'Donations',
+  //   url: '/patient/donation',
+  //   icon: HandCoins,
+  // },
+  // {
+  //   type: 'main',
+  //   name: 'Donations',
+  //   url: '/patient/donation',
+  //   icon: HandCoins,
+  // },
   {
     type: 'sub',
-    title: 'Reports',
+    title: 'Donations',
     url: '',
-    icon: FileChartColumnIncreasing,
+    icon: HandCoins,
     isActive: true,
     items: [
       {
-        name: 'Appointment Reports',
-        url: '/patient/appointment-reports',
+        name: 'Donation Requests',
+        url: '/patient/donation/requests',
       },
       {
-        name: 'Patient Reports',
-        url: '/patient/patient-reports',
+        name: 'Ongoing Donations',
+        url: '/patient/donation/ongoing',
       },
       {
-        name: 'Financial Reports',
-        url: '/patient/financial-reports',
+        name: 'Select Drug Importer',
+        url: '/patient/donation/select-importer',
       },
     ],
-  },
-  {
-    type: 'main',
-    name: 'Examination',
-    url: '/patient/examination',
-    icon: LayoutDashboard,
   },
 ];
