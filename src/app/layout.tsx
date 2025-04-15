@@ -25,12 +25,12 @@ export const metadata: Metadata = {
 
 /**
  * Root Layout Component
- * 
+ *
  * This layout wraps all pages and provides:
  * - Font configuration with Geist Sans and Geist Mono
  * - Theme management via ThemeProvider
  * - HeroUI component system via HeroUIProvider
- * 
+ *
  * The theme configuration supports:
  * - Primary colors (pink/magenta palette with #fa3a91 as default)
  * - Secondary colors (blue palette with #3298ff as default)
@@ -47,14 +47,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased`}
       >
-       
         <ThemeProvider
           attribute='class'
           defaultTheme='system'
           enableSystem
           disableTransitionOnChange
         >
-
           <HeroUIProvider>
             <ToastProvider />
             {children}
