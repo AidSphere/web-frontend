@@ -1,7 +1,11 @@
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+   reactStrictMode: true,
+  swcMinify: true,
   images:{
+    domains: ['images.unsplash.com'],
     remotePatterns:[
       {
         protocol: 'https',
@@ -19,4 +23,4 @@ const nextConfig: NextConfig = {
   /* config options here */
 };
 
-export default nextConfig;
+module.exports = nextConfig;
