@@ -25,65 +25,44 @@ import {
 } from 'lucide-react';
 
 // Patient schema
-const patientSchema = z
-  .object({
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-    nic: z.string().min(1, 'NIC number is required'),
-    phone: z.string().min(10, 'Valid phone number is required'),
-    addressLine1: z.string().min(1, 'Address line 1 is required'),
-    addressLine2: z.string().optional(),
-    nicUpload: z
-      .instanceof(FileList)
-      .refine((files) => files.length > 0, 'NIC upload is required'),
-    diagnoseReport: z
-      .instanceof(FileList)
-      .refine((files) => files.length > 0, 'Diagnose report is required'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(6, 'Confirm password is required'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+const patientSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  nic: z.string().min(1, 'NIC number is required'),
+  phone: z.string().min(10, 'Valid phone number is required'),
+  addressLine1: z.string().min(1, 'Address line 1 is required'),
+  addressLine2: z.string().optional(),
+  nicUpload: z
+    .instanceof(FileList)
+    .refine((files) => files.length > 0, 'NIC upload is required'),
+  diagnoseReport: z
+    .instanceof(FileList)
+    .refine((files) => files.length > 0, 'Diagnose report is required'),
+});
 
 // Donor schema
-const donorSchema = z
-  .object({
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-    nic: z.string().min(1, 'NIC number is required'),
-    phone: z.string().min(10, 'Valid phone number is required'),
-    addressLine1: z.string().min(1, 'Address line 1 is required'),
-    addressLine2: z.string().optional(),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(6, 'Confirm password is required'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+const donorSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  nic: z.string().min(1, 'NIC number is required'),
+  phone: z.string().min(10, 'Valid phone number is required'),
+  addressLine1: z.string().min(1, 'Address line 1 is required'),
+  addressLine2: z.string().optional(),
+});
 
 // Drug Importer schema
-const drugImporterSchema = z
-  .object({
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-    nic: z.string().min(1, 'NIC number is required'),
-    phone: z.string().min(10, 'Valid phone number is required'),
-    addressLine1: z.string().min(1, 'Address line 1 is required'),
-    addressLine2: z.string().optional(),
-    licenceNumber: z.string().min(1, 'Licence number is required'),
-    licenceUpload: z
-      .instanceof(FileList)
-      .refine((files) => files.length > 0, 'Licence upload is required'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(6, 'Confirm password is required'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+const drugImporterSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  nic: z.string().min(1, 'NIC number is required'),
+  phone: z.string().min(10, 'Valid phone number is required'),
+  addressLine1: z.string().min(1, 'Address line 1 is required'),
+  addressLine2: z.string().optional(),
+  licenceNumber: z.string().min(1, 'Licence number is required'),
+  licenceUpload: z
+    .instanceof(FileList)
+    .refine((files) => files.length > 0, 'Licence upload is required'),
+});
 
 const CreateAccount = () => {
   const [activeTab, setActiveTab] = useState('patient');
@@ -99,8 +78,6 @@ const CreateAccount = () => {
       phone: '',
       addressLine1: '',
       addressLine2: '',
-      password: '',
-      confirmPassword: '',
     },
   });
 
@@ -114,8 +91,6 @@ const CreateAccount = () => {
       phone: '',
       addressLine1: '',
       addressLine2: '',
-      password: '',
-      confirmPassword: '',
     },
   });
 
@@ -130,8 +105,6 @@ const CreateAccount = () => {
       addressLine1: '',
       addressLine2: '',
       licenceNumber: '',
-      password: '',
-      confirmPassword: '',
     },
   });
 
@@ -400,46 +373,6 @@ const CreateAccount = () => {
                   />
                 </div>
 
-                <div className='space-y-1'>
-                  <div className='flex items-center gap-1'>
-                    <Lock size={16} className='text-gray-500' />
-                    <label className='text-sm font-medium text-gray-700'>
-                      Password
-                    </label>
-                  </div>
-                  <Input
-                    type='password'
-                    variant='bordered'
-                    placeholder='Create a secure password'
-                    {...patientForm.register('password')}
-                    isInvalid={!!patientForm.formState.errors.password}
-                    errorMessage={
-                      patientForm.formState.errors.password?.message
-                    }
-                    className='w-full'
-                  />
-                </div>
-
-                <div className='space-y-1'>
-                  <div className='flex items-center gap-1'>
-                    <Lock size={16} className='text-gray-500' />
-                    <label className='text-sm font-medium text-gray-700'>
-                      Confirm Password
-                    </label>
-                  </div>
-                  <Input
-                    type='password'
-                    variant='bordered'
-                    placeholder='Re-enter your password'
-                    {...patientForm.register('confirmPassword')}
-                    isInvalid={!!patientForm.formState.errors.confirmPassword}
-                    errorMessage={
-                      patientForm.formState.errors.confirmPassword?.message
-                    }
-                    className='w-full'
-                  />
-                </div>
-
                 <div className='mt-4 flex flex-col justify-center gap-4 sm:flex-row md:col-span-2'>
                   <Button
                     type='submit'
@@ -594,44 +527,6 @@ const CreateAccount = () => {
                     variant='bordered'
                     placeholder='Apartment, suite, unit, etc.'
                     {...donorForm.register('addressLine2')}
-                    className='w-full'
-                  />
-                </div>
-
-                <div className='space-y-1'>
-                  <div className='flex items-center gap-1'>
-                    <Lock size={16} className='text-gray-500' />
-                    <label className='text-sm font-medium text-gray-700'>
-                      Password
-                    </label>
-                  </div>
-                  <Input
-                    type='password'
-                    variant='bordered'
-                    placeholder='Create a secure password'
-                    {...donorForm.register('password')}
-                    isInvalid={!!donorForm.formState.errors.password}
-                    errorMessage={donorForm.formState.errors.password?.message}
-                    className='w-full'
-                  />
-                </div>
-
-                <div className='space-y-1'>
-                  <div className='flex items-center gap-1'>
-                    <Lock size={16} className='text-gray-500' />
-                    <label className='text-sm font-medium text-gray-700'>
-                      Confirm Password
-                    </label>
-                  </div>
-                  <Input
-                    type='password'
-                    variant='bordered'
-                    placeholder='Re-enter your password'
-                    {...donorForm.register('confirmPassword')}
-                    isInvalid={!!donorForm.formState.errors.confirmPassword}
-                    errorMessage={
-                      donorForm.formState.errors.confirmPassword?.message
-                    }
                     className='w-full'
                   />
                 </div>
@@ -852,48 +747,6 @@ const CreateAccount = () => {
                     }
                     errorMessage={
                       drugImporterForm.formState.errors.licenceUpload?.message
-                    }
-                    className='w-full'
-                  />
-                </div>
-
-                <div className='space-y-1'>
-                  <div className='flex items-center gap-1'>
-                    <Lock size={16} className='text-gray-500' />
-                    <label className='text-sm font-medium text-gray-700'>
-                      Password
-                    </label>
-                  </div>
-                  <Input
-                    type='password'
-                    variant='bordered'
-                    placeholder='Create a secure password'
-                    {...drugImporterForm.register('password')}
-                    isInvalid={!!drugImporterForm.formState.errors.password}
-                    errorMessage={
-                      drugImporterForm.formState.errors.password?.message
-                    }
-                    className='w-full'
-                  />
-                </div>
-
-                <div className='space-y-1'>
-                  <div className='flex items-center gap-1'>
-                    <Lock size={16} className='text-gray-500' />
-                    <label className='text-sm font-medium text-gray-700'>
-                      Confirm Password
-                    </label>
-                  </div>
-                  <Input
-                    type='password'
-                    variant='bordered'
-                    placeholder='Re-enter your password'
-                    {...drugImporterForm.register('confirmPassword')}
-                    isInvalid={
-                      !!drugImporterForm.formState.errors.confirmPassword
-                    }
-                    errorMessage={
-                      drugImporterForm.formState.errors.confirmPassword?.message
                     }
                     className='w-full'
                   />
