@@ -9,36 +9,32 @@ import { NavigationArray } from '../types/navigationItemTypes';
 
 export const data: NavigationArray = [
   {
-    type: 'sub',
-    title: 'Reports',
-    url: '',
+    type: 'main',
+    name: 'Home',
+    url: '/admin/',
     icon: FileChartLine,
-    isActive: true,
-    items: [
-      {
-        name: 'Appointment Reports',
-        url: '/doctor/appointment-reports',
-      },
-      {
-        name: 'Patient Reports',
-        url: '/doctor/patient-reports',
-      },
-      {
-        name: 'Financial Reports',
-        url: '/doctor/financial-reports',
-      },
-    ],
   },
   {
     type: 'main',
-    name: 'Overview',
-    url: '/doctor',
+    name: 'Create Accounts',
+    url: '/admin/create-accounts',
     icon: LayoutDashboard,
   },
   {
-    type: 'main',
-    name: 'Examination',
-    url: '/doctor/examination',
+    type: 'sub',
+    title: 'Request Approval',
+    url: '/admin/request-approval',
     icon: Stethoscope,
+    isActive: true,
+    items: [
+      {
+        name: 'Patient Requests',
+        url: '/admin/request-approval/patient-requests',
+      },
+      {
+        name: 'Drug Importer Requests',
+        url: '/admin/request-approval/drug-importer-requests',
+      },
+    ],
   },
 ];

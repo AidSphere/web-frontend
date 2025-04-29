@@ -148,22 +148,22 @@ export default {
 				},
 				background: "#ffffff",
 				foreground: "#040404",
-				content1: {
-				  DEFAULT: "#fe7272",
-				  foreground: "#000"
-				},
-				content2: {
-				  DEFAULT: "#57eeff",
-				  foreground: "#000"
-				},
-				content3: {
-				  DEFAULT: "#e4e4e7",
-				  foreground: "#000"
-				},
-				content4: {
-				  DEFAULT: "#d4d4d8",
-				  foreground: "#000"
-				},
+				// content1: {
+				//   DEFAULT: "#fe7272",
+				//   foreground: "#000"
+				// },
+				// content2: {
+				//   DEFAULT: "#57eeff",
+				//   foreground: "#000"
+				// },
+				// content3: {
+				//   DEFAULT: "#e4e4e7",
+				//   foreground: "#000"
+				// },
+				// content4: {
+				//   DEFAULT: "#d4d4d8",
+				//   foreground: "#000"
+				// },
 				focus: "#006FEE",
 				overlay: "#000000"
 			  }

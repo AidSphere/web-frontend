@@ -8,11 +8,12 @@ import TopNavBar from '@/components/navBarTopRight';
 import { Separator } from '@radix-ui/react-separator';
 import DynamicBreadcrumb from '@/components/dynamicBreadcrumb';
 import { UserDetailsType } from '@/components/sideBar/types/userDetailsType';
+import { Toaster } from '@/components/ui/toaster';
 
 const user: UserDetailsType = {
   name: 'ushan',
   email: 'u@example.com',
-  Image: '',
+  Image: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
 };
 
 export default function PatientLayout({
@@ -32,7 +33,10 @@ export default function PatientLayout({
           </div>
           <TopNavBar />
         </header>
-        <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>{children}</div>
+        <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
+          {children}
+          <Toaster />
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
