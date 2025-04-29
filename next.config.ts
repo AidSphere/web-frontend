@@ -1,7 +1,11 @@
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+   reactStrictMode: true,
+  swcMinify: true,
   images:{
+    domains: ['images.unsplash.com'],
     remotePatterns:[
       {
         protocol: 'https',
@@ -15,8 +19,11 @@ const nextConfig: NextConfig = {
         hostname: 'api.qrserver.com'
       }
     ]
-  }
+  },
+  serverActions: {
+    bodySizeLimit: '10mb', // Increase the limit (e.g., to 10MB)
+  },
   /* config options here */
 };
 
-export default nextConfig;
+module.exports = nextConfig;

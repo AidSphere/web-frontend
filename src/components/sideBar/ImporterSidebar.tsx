@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -20,81 +20,120 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '../ui/collapsible';
+} from '@/components/ui/collapsible';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { data } from '@/components/sideBar/navData/importerNavData';
 import { UserDetailsType } from './types/userDetailsType';
 import { NavUser } from './nav-user';
+import { useTheme } from 'next-themes';
+import data from './navData/importerNavData';
 
 /**
- * sidebar has two type of navitems ---> single nav items , nav items with sub menu items
+ * Sidebar for Drug Importer with navigation items:
+ * - Dashboard
+ * - Bill Requests
+ * - Quotations
+ * - Medicines
  */
 
-export function ImporterSidebar({
+export function DrugImporterSidebar({
   userData,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   userData: UserDetailsType;
 }) {
-  /**
-   * get pageName when sidebar is rendered first time.(replace '-' in path with ' ' when the name has more than 1 words)
-   * set the pageName to find active navigation name in the sidebar.
-   */
-  const pageName = usePathname().split('/')[2]?.replaceAll('-', ' ');
-  const [activeNavName, setActiveNavName] = useState(
-    pageName !== undefined ? pageName : 'Overview'
+  // Get the current theme
+  const { theme } = useTheme();
+
+  // Get pageName when sidebar is rendered first time
+  const pathname = usePathname();
+  const pathSegments = pathname.split('/');
+  const pageName =
+    pathSegments.length > 2 ? pathSegments[2]?.replaceAll('-', ' ') : undefined;
+
+  // State for active navigation item
+  const [activeNavName, setActiveNavName] = useState<string>(
+    pageName !== undefined ? pageName : 'Dashboard'
   );
+
+  // Update active nav name when pathname changes
+  useEffect(() => {
+    if (pageName !== undefined) {
+      setActiveNavName(pageName);
+    }
+  }, [pathname, pageName]);
+
   const { state } = useSidebar();
   const navData = data;
+
+  // Determine logo path based on theme
+  const logoPath =
+    theme === 'dark' ? '/images/logo-dark.png' : '/images/logo.png';
+
   return (
-    <Sidebar collapsible='icon' {...props}>
-      <SidebarHeader>
+    <Sidebar
+      collapsible='icon'
+      className='border-border dark:bg-background/95 border-r'
+      {...props}
+    >
+      <SidebarHeader className='border-border/50 border-b py-2'>
         {state === 'expanded' ? (
-          <div className='m-auto mt-2 flex flex-row gap-2 font-bold'>
+          <div className='flex flex-row items-center justify-center gap-2 px-4 font-bold'>
             <span>
               <Image
-                src={'/images/logo.png'}
-                width={24}
-                height={24}
+                src={logoPath}
+                width={28}
+                height={28}
                 priority
-                alt='aidsphere logo'
+                alt='MediPharm logo'
+                className='h-7 w-7 object-contain'
               />
             </span>
-            AidSphere
+            <span className='text-lg'>MediPharm</span>
           </div>
         ) : (
-          <div className='ml-1 mt-2 flex flex-row items-center gap-2'>
+          <div className='flex flex-row items-center justify-center'>
             <span>
               <Image
-                src={'/images/logo.png'}
-                width={25}
-                height={25}
+                src={logoPath}
+                width={28}
+                height={28}
                 priority
-                alt='aidsphere logo'
+                alt='MediPharm logo'
+                className='h-7 w-7 object-contain'
               />
             </span>
           </div>
         )}
       </SidebarHeader>
-      <SidebarContent>
-        <div className='mt-0'></div>
+
+      <SidebarContent className='px-1 py-2'>
         <SidebarGroup>
           <SidebarMenu>
             {navData.map((item) =>
-              item.type === 'sub' ? ( // <-- Type-based check
+              item.type === 'sub' ? (
                 <Collapsible
                   key={item.title}
                   asChild
-                  defaultOpen={item.isActive}
+                  defaultOpen={
+                    item.isActive ||
+                    item.items.some(
+                      (subItem) =>
+                        subItem.name.toLowerCase() ===
+                        activeNavName?.toLowerCase()
+                    )
+                  }
                   className='group/collapsible'
                 >
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton tooltip={item.title}>
-                        {item.icon && <item.icon />}
+                      <SidebarMenuButton
+                        tooltip={state === 'collapsed' ? item.title : undefined}
+                        className='hover:bg-accent/80'
+                      >
+                        {item.icon && <item.icon className='h-5 w-5' />}
                         <span>{item.title}</span>
-                        <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
+                        <ChevronRight className='ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
@@ -110,6 +149,7 @@ export function ImporterSidebar({
                                 subItem.name.toLowerCase() ===
                                 activeNavName?.toLowerCase()
                               }
+                              className='transition-colors'
                             >
                               <Link href={subItem.url}>
                                 <span>{subItem.name}</span>
@@ -131,9 +171,11 @@ export function ImporterSidebar({
                     isActive={
                       item.name.toLowerCase() === activeNavName?.toLowerCase()
                     }
+                    tooltip={state === 'collapsed' ? item.name : undefined}
+                    className='hover:bg-accent/80'
                   >
                     <Link href={item.url}>
-                      {item.icon && <item.icon />}
+                      {item.icon && <item.icon className='size-5' />}
                       <span>{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -143,7 +185,8 @@ export function ImporterSidebar({
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+
+      <SidebarFooter className='border-border/50 border-t py-2'>
         <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>

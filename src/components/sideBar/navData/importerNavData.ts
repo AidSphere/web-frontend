@@ -1,44 +1,52 @@
-import { FileChartLine, Stethoscope, LayoutDashboard } from 'lucide-react';
-import { NavigationArray } from '../types/navigationItemTypes';
+'use client';
 
-//  This contains sidebar navigation items.
-// use lowercase when setting url paths
-// use Lucide react JSX icons as icons
-//  use - in url path when there is more than one word in the path segment
-//  name : Financial Reports     ----->  path: /doctor/financial-reports
+import { LayoutDashboard, FileText, ClipboardList, Pill } from 'lucide-react';
 
-export const data: NavigationArray = [
+export type NavItemType = {
+  type: 'single';
+  icon: React.ComponentType;
+  name: string;
+  url: string;
+  isActive?: boolean;
+};
+
+export type NavItemWithSubType = {
+  type: 'sub';
+  icon: React.ComponentType;
+  title: string;
+  isActive?: boolean;
+  items: {
+    name: string;
+    url: string;
+  }[];
+};
+
+export const data: (NavItemType | NavItemWithSubType)[] = [
   {
-    type: 'sub',
-    title: 'Reports',
-    url: '',
-    icon: FileChartLine,
-    isActive: true,
-    items: [
-      {
-        name: 'Appointment Reports',
-        url: '/doctor/appointment-reports',
-      },
-      {
-        name: 'Patient Reports',
-        url: '/doctor/patient-reports',
-      },
-      {
-        name: 'Financial Reports',
-        url: '/doctor/financial-reports',
-      },
-    ],
-  },
-  {
-    type: 'main',
-    name: 'Overview',
-    url: '/doctor',
+    type: 'single',
     icon: LayoutDashboard,
+    name: 'Dashboard',
+    url: '/importer',
+    isActive: true,
   },
   {
-    type: 'main',
-    name: 'Examination',
-    url: '/doctor/examination',
-    icon: Stethoscope,
+    type: 'single',
+    icon: FileText,
+    name: 'Bill Requests',
+    url: '/importer/bill-requests',
+  },
+  {
+    type: 'single',
+    icon: ClipboardList,
+    name: 'Quotations',
+    url: '/importer/quotations',
+  },
+  {
+    type: 'single',
+    icon: Pill,
+    name: 'Medicines',
+    url: '/importer/medicines',
   },
 ];
+
+export default data;
