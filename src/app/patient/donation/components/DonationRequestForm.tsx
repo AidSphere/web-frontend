@@ -15,10 +15,12 @@ import { BasicInfoSchema } from '@/app/patient/_types/donation-request-types';
 import BasicInfoInput from '@/app/patient/components/BasicInfoInput';
 import { Form } from '@/components/ui/form';
 import Link from 'next/link';
+import { uploadImageToCloudinary } from '@/app/actions/uploadActions';
+import { uploadImages } from '@/lib/utils/uploadUtils';
 
 // Create a schema for the complete form
 const DonationRequestSchema = BasicInfoSchema.extend({
-  imageFiles: z.array(z.any()).optional(),
+  imageFiles: z.array(z.instanceof(File)).optional(),
   pdfFiles: z.array(z.any()).optional(),
   notes: z.string().optional(),
 });
@@ -45,13 +47,17 @@ export default function DonationRequestForm() {
   });
 
   const onSubmit = async (data: DonationRequestFormValues) => {
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      console.log('Submitted medical record:', data);
+      let uploadedImageUrls: string[] = [];
+      // 1. Upload Images to Cloudinary if they exist
+      if (data.imageFiles && data.imageFiles.length > 0) {
+        // Pass the files and the desired folder name
+        uploadedImageUrls = await uploadImages(
+          data.imageFiles,
+          'donation-images'
+        );
+      }
 
       // Create FormData for file uploads
       const formData = new FormData();
@@ -67,12 +73,10 @@ export default function DonationRequestForm() {
         formData.append(`items[${index}][amount]`, item.amount);
       });
 
-      // Add images
-      if (data.imageFiles && data.imageFiles.length > 0) {
-        data.imageFiles.forEach((file, index) => {
-          formData.append(`images`, file);
-        });
-      }
+      // Add Cloudinary Image URLs
+      uploadedImageUrls.forEach((url, index) => {
+        formData.append(`imageUrls[${index}]`, url); // Send URLs
+      });
 
       // Add PDFs with titles
       if (data.pdfFiles && data.pdfFiles.length > 0) {
@@ -87,6 +91,7 @@ export default function DonationRequestForm() {
         formData.append('notes', data.notes);
       }
 
+      console.log('Data prepared for backend:', formData);
       // const response = await fetch('/api/medical-records', {
       //   method: 'POST',
       //   body: formData,
@@ -104,6 +109,7 @@ export default function DonationRequestForm() {
         variant: 'destructive',
       });
     } finally {
+      form.reset();
       setIsSubmitting(false);
     }
   };
