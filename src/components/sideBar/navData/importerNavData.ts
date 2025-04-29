@@ -1,11 +1,6 @@
 'use client';
 
-import { 
-  LayoutDashboard, 
-  FileText, 
-  ClipboardList, 
-  Pill,
-} from 'lucide-react';
+import { LayoutDashboard, FileText, ClipboardList, Pill } from 'lucide-react';
 
 export type NavItemType = {
   type: 'single';
@@ -32,26 +27,26 @@ export const data: (NavItemType | NavItemWithSubType)[] = [
     icon: LayoutDashboard,
     name: 'Dashboard',
     url: '/importer',
-    isActive: true
+    isActive: true,
   },
   {
     type: 'single',
     icon: FileText,
     name: 'Bill Requests',
-    url: '/importer/bill-requests'
+    url: '/importer/bill-requests',
   },
   {
     type: 'single',
     icon: ClipboardList,
     name: 'Quotations',
-    url: '/importer/quotations'
+    url: '/importer/quotations',
   },
   {
     type: 'single',
     icon: Pill,
     name: 'Medicines',
-    url: '/importer/medicines'
-  }
+    url: '/importer/medicines',
+  },
 ];
 
 export default data;

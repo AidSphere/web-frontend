@@ -1,7 +1,6 @@
 /* eslint-disable tailwindcss/no-custom-classname */
-"use client"
-import 
-{
+'use client';
+import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
@@ -26,7 +25,7 @@ export default function DImporterLayout({
 }>) {
   // Get the current path to check if we're on the register page
   const pathname = usePathname();
-  
+
   // If we're on the register page, just render the children without the layout
   if (pathname === '/importer/register' || pathname === '/login') {
     return <>{children}</>;

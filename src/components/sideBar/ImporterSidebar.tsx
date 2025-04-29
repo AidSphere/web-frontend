@@ -44,68 +44,70 @@ export function DrugImporterSidebar({
 }) {
   // Get the current theme
   const { theme } = useTheme();
-  
+
   // Get pageName when sidebar is rendered first time
   const pathname = usePathname();
   const pathSegments = pathname.split('/');
-  const pageName = pathSegments.length > 2 ? pathSegments[2]?.replaceAll('-', ' ') : undefined;
-  
+  const pageName =
+    pathSegments.length > 2 ? pathSegments[2]?.replaceAll('-', ' ') : undefined;
+
   // State for active navigation item
   const [activeNavName, setActiveNavName] = useState<string>(
     pageName !== undefined ? pageName : 'Dashboard'
   );
-  
+
   // Update active nav name when pathname changes
   useEffect(() => {
     if (pageName !== undefined) {
       setActiveNavName(pageName);
     }
   }, [pathname, pageName]);
-  
+
   const { state } = useSidebar();
   const navData = data;
-  
+
   // Determine logo path based on theme
-  const logoPath = theme === 'dark' ? '/images/logo-dark.png' : '/images/logo.png';
-  
+  const logoPath =
+    theme === 'dark' ? '/images/logo-dark.png' : '/images/logo.png';
+
   return (
-    <Sidebar 
-      collapsible="icon" 
-      className="border-r border-border dark:bg-background/95"
+    <Sidebar
+      collapsible='icon'
+      className='border-border dark:bg-background/95 border-r'
       {...props}
     >
-      <SidebarHeader className="border-b border-border/50 py-2">
+      <SidebarHeader className='border-border/50 border-b py-2'>
         {state === 'expanded' ? (
-          <div className="flex flex-row items-center justify-center gap-2 px-4 font-bold">
+          <div className='flex flex-row items-center justify-center gap-2 px-4 font-bold'>
             <span>
               <Image
                 src={logoPath}
                 width={28}
                 height={28}
                 priority
-                alt="MediPharm logo"
-                className="h-7 w-7 object-contain"
+                alt='MediPharm logo'
+                className='h-7 w-7 object-contain'
               />
             </span>
-            <span className="text-lg">MediPharm</span>
+            <span className='text-lg'>MediPharm</span>
           </div>
         ) : (
-          <div className="flex flex-row items-center justify-center">
+          <div className='flex flex-row items-center justify-center'>
             <span>
               <Image
                 src={logoPath}
                 width={28}
                 height={28}
                 priority
-                alt="MediPharm logo"
-                className="h-7 w-7 object-contain"
+                alt='MediPharm logo'
+                className='h-7 w-7 object-contain'
               />
             </span>
           </div>
         )}
       </SidebarHeader>
-      
-      <SidebarContent className="px-1 py-2">
+
+      <SidebarContent className='px-1 py-2'>
         <SidebarGroup>
           <SidebarMenu>
             {navData.map((item) =>
@@ -114,22 +116,24 @@ export function DrugImporterSidebar({
                   key={item.title}
                   asChild
                   defaultOpen={
-                    item.isActive || 
-                    item.items.some(subItem => 
-                      subItem.name.toLowerCase() === activeNavName?.toLowerCase()
+                    item.isActive ||
+                    item.items.some(
+                      (subItem) =>
+                        subItem.name.toLowerCase() ===
+                        activeNavName?.toLowerCase()
                     )
                   }
-                  className="group/collapsible"
+                  className='group/collapsible'
                 >
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton 
+                      <SidebarMenuButton
                         tooltip={state === 'collapsed' ? item.title : undefined}
-                        className="hover:bg-accent/80"
+                        className='hover:bg-accent/80'
                       >
-                        {item.icon && <item.icon className="h-5 w-5" />}
+                        {item.icon && <item.icon className='h-5 w-5' />}
                         <span>{item.title}</span>
-                        <ChevronRight className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                        <ChevronRight className='ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
@@ -145,7 +149,7 @@ export function DrugImporterSidebar({
                                 subItem.name.toLowerCase() ===
                                 activeNavName?.toLowerCase()
                               }
-                              className="transition-colors"
+                              className='transition-colors'
                             >
                               <Link href={subItem.url}>
                                 <span>{subItem.name}</span>
@@ -168,10 +172,10 @@ export function DrugImporterSidebar({
                       item.name.toLowerCase() === activeNavName?.toLowerCase()
                     }
                     tooltip={state === 'collapsed' ? item.name : undefined}
-                    className="hover:bg-accent/80"
+                    className='hover:bg-accent/80'
                   >
                     <Link href={item.url}>
-                      {item.icon && <item.icon className="size-5" />}
+                      {item.icon && <item.icon className='size-5' />}
                       <span>{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -181,9 +185,9 @@ export function DrugImporterSidebar({
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      
-      <SidebarFooter className="border-t border-border/50 py-2">
-        <NavUser user={userData}  />
+
+      <SidebarFooter className='border-border/50 border-t py-2'>
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   );
