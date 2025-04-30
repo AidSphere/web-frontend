@@ -108,7 +108,7 @@ test('Click Sponsor Now to navigate to the sponsor page. Enter invalid data in t
 
 
 
-test.only('View donations for patient', async ({ page }) => {
+test('View donations for patient', async ({ page }) => {
   //Navigate to donor homepage
   await page.goto('http://localhost:3000/donor/home');
 
@@ -131,4 +131,31 @@ test.only('View donations for patient', async ({ page }) => {
   // Debug output
   console.log('Current URL:', page.url());
   console.log('Header content:', await page.locator('#donation-list-heading').textContent());
+});
+
+test.only('Profile page load - Visible Test', async ({ page }) => { 
+  //Navigate to donor homepage (visible)
+  await page.goto('http://localhost:3000/donor/home');
+  await page.waitForTimeout(1000); // Pause to see the page
+
+  //Locate and highlight profile link
+  const profileLink = page.locator('[href="/donor/profile"]');
+  await expect(profileLink).toBeVisible();
+  await profileLink.highlight(); // Visual indicator
+  await page.waitForTimeout(1000); // Pause to see highlighted element
+
+  //Click with visible navigation
+  await Promise.all([
+    page.waitForURL('http://localhost:3000/donor/profile'),
+    profileLink.click()
+  ]);
+  await page.waitForTimeout(1000); // Pause to see navigation
+
+  //Verify and highlight profile header
+  const header = page.locator('h1:has-text("My Profile")');
+  await expect(header).toBeVisible();
+  await header.highlight();
+  await page.waitForTimeout(2000); // Extended pause to see result
+  console.log('Profile header content:', await header.textContent());
+ 
 });
