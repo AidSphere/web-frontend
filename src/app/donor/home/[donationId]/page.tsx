@@ -34,7 +34,7 @@ const donors = [
 const ViewDonation = () => {
   return (
     <div className='flex w-full flex-col items-center justify-center gap-3'>
-      <h1 className='p-3 text-center text-3xl font-bold'>Donation List</h1>
+      <h1 className='p-3 text-center text-3xl font-bold donation-list-header' id='donation-list-heading'>Donation List</h1>
       {donors.map((donor) => (
         <DonorListCard key={donor.id} {...donor} />
       ))}
