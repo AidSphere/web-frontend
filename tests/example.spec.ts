@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { promise } from 'zod';
 
 test('Check page loads with patients', async ({ browser }) => {
 
@@ -107,6 +108,27 @@ test('Click Sponsor Now to navigate to the sponsor page. Enter invalid data in t
 
 
 
+test.only('View donations for patient', async ({ page }) => {
+  //Navigate to donor homepage
+  await page.goto('http://localhost:3000/donor/home');
 
+  //Locate and verify view donations button
+  const viewDonation = page.locator('[id="view-donations-3"]');
+  await expect(viewDonation).toBeVisible();
+  await expect(viewDonation).toHaveText('View Donations');
 
+  //Click and wait for navigation
+  await Promise.all([
+    page.waitForURL('http://localhost:3000/donor/home/3'), // Full URL match
+    viewDonation.click()
+  ]);
 
+  //Verify donation list page
+  await expect(page).toHaveURL('http://localhost:3000/donor/home/3');
+  await expect(page.locator('#donation-list-heading')).toBeVisible();
+  await expect(page.locator('#donation-list-heading')).toContainText('Donation');
+  
+  // Debug output
+  console.log('Current URL:', page.url());
+  console.log('Header content:', await page.locator('#donation-list-heading').textContent());
+});
