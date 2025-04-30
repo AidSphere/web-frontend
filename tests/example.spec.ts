@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { add } from 'date-fns';
 import { promise } from 'zod';
 
-test('Check page loads with patients', async ({ browser }) => {
+test('Display patient list on donor home page', async ({ browser }) => {
 
   const context = await browser.newContext(); // Fresh browser instance
   const page = await context.newPage();       // New tab
@@ -23,7 +23,7 @@ test('Check page loads with patients', async ({ browser }) => {
 
 });
 
-test('Clicking Sponsor Now navigates to sponsor page', async ({ browser }) => {
+test('Navigate to sponsor page when Sponsor Now is clicked', async ({ browser }) => {
   const context = await browser.newContext();
   const page = await context.newPage();
 
@@ -49,7 +49,7 @@ test('Clicking Sponsor Now navigates to sponsor page', async ({ browser }) => {
 
 });
 
-test('Clicking Sponsor Now navigates to sponsor page and click pay button without filling a field', async ({ browser }) => {
+test('Validate sponsor form with empty fields on Pay button click', async ({ browser }) => {
   const context = await browser.newContext();
   const page = await context.newPage();
 
@@ -75,7 +75,7 @@ test('Clicking Sponsor Now navigates to sponsor page and click pay button withou
 
 });
 
-test('Click Sponsor Now to navigate to the sponsor page. Enter invalid data in the fields. Click the Pay button.', async ({ browser }) => {
+test('Display validation errors for invalid data in sponsor form', async ({ browser }) => {
   const context = await browser.newContext();
   const page = await context.newPage();
 
@@ -109,7 +109,7 @@ test('Click Sponsor Now to navigate to the sponsor page. Enter invalid data in t
 
 
 
-test('View donations for patient', async ({ page }) => {
+test('Display all donations made to selected patient', async ({ page }) => {
   //Navigate to donor homepage
   await page.goto('http://localhost:3000/donor/home');
 
@@ -134,7 +134,7 @@ test('View donations for patient', async ({ page }) => {
   console.log('Header content:', await page.locator('#donation-list-heading').textContent());
 });
 
-test('Profile page load - Visible Test', async ({ page }) => { 
+test('Load donor profile page and verify visibility of content', async ({ page }) => { 
   //Navigate to donor homepage (visible)
   await page.goto('http://localhost:3000/donor/home');
   await page.waitForTimeout(1000); // Pause to see the page
@@ -161,7 +161,7 @@ test('Profile page load - Visible Test', async ({ page }) => {
  
 });
 
-test('Edit the profile succesfully', async ({ page }) => { 
+test('Update profile information with valid input', async ({ page }) => { 
   //Navigate to donor homepage (visible)
   await page.goto('http://localhost:3000/donor/home');
   
@@ -198,7 +198,7 @@ test('Edit the profile succesfully', async ({ page }) => {
   
 });
 
-test.only('Edit the profile click the cancel button', async ({ page }) => { 
+test('Cancel profile editing and revert to previous data', async ({ page }) => { 
   //Navigate to donor homepage (visible)
   await page.goto('http://localhost:3000/donor/home');
   
