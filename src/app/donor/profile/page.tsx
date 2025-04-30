@@ -205,21 +205,21 @@ const Profile = () => {
                 )}
               </div>
 
-              <h2 className='mb-1 text-xl font-semibold'>{getFullName()}</h2>
-              <p className='mb-4 text-gray-500'>{formData.email}</p>
+              <h2 className='mb-1 text-xl font-semibold '>{getFullName()}</h2>
+              <p className='mb-4 text-gray-500'id="email-display">{formData.email}</p>
 
               <div className='mt-4 w-full space-y-3'>
                 <div className='flex items-center text-gray-600'>
                   <CreditCard size={18} className='mr-2' />
-                  <span>{formData.nicNumber || 'No NIC provided'}</span>
+                  <span id="nic-display">{formData.nicNumber || 'No NIC provided'}</span>
                 </div>
                 <div className='flex items-center text-gray-600'>
                   <Phone size={18} className='mr-2' />
-                  <span>{formData.phoneNumber || 'No phone provided'}</span>
+                  <span id="phone-display">{formData.phoneNumber || 'No phone provided'}</span>
                 </div>
                 <div className='flex items-center text-gray-600'>
                   <MapPin size={18} className='mr-2' />
-                  <span>{formData.address || 'No address provided'}</span>
+                  <span id="add-display">{formData.address || 'No address provided'}</span>
                 </div>
               </div>
 
