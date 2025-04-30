@@ -272,7 +272,7 @@ const Profile = () => {
 
             <CardBody className='px-6 py-5'>
               {saveSuccess && (
-                <div className='mb-4 flex items-center rounded-lg bg-green-50 p-3 text-green-700'>
+                <div className='mb-4 flex items-center rounded-lg bg-green-50 p-3 text-green-700 success-alert'>
                   <CheckCircle2 size={18} className='mr-2' />
                   Profile updated successfully!
                 </div>
@@ -293,7 +293,8 @@ const Profile = () => {
                     disabled={!isEditing || loading}
                     isInvalid={!!errors.firstName}
                     errorMessage={errors.firstName}
-                    className='w-full'
+                    className='w-full first-name-input'
+                    id='first-name-field' // Added static ID
                   />
                 </div>
 
@@ -311,7 +312,8 @@ const Profile = () => {
                     disabled={!isEditing || loading}
                     isInvalid={!!errors.lastName}
                     errorMessage={errors.lastName}
-                    className='w-full'
+                    className='w-full last-name-input'
+                    id='last-name-field'
                   />
                 </div>
 
@@ -329,7 +331,8 @@ const Profile = () => {
                     disabled={!isEditing || loading}
                     isInvalid={!!errors.nicNumber}
                     errorMessage={errors.nicNumber}
-                    className='w-full'
+                    className='w-full nic-input'
+                    id='nic-field'
                   />
                 </div>
 
@@ -347,7 +350,8 @@ const Profile = () => {
                     disabled={!isEditing || loading}
                     isInvalid={!!errors.email}
                     errorMessage={errors.email}
-                    className='w-full'
+                    className='w-full email-input'
+                    id='email-field'
                   />
                 </div>
 
@@ -365,7 +369,8 @@ const Profile = () => {
                     disabled={!isEditing || loading}
                     isInvalid={!!errors.phoneNumber}
                     errorMessage={errors.phoneNumber}
-                    className='w-full'
+                    className='w-full phone-input'
+                    id='phone-field'
                   />
                 </div>
 
@@ -383,7 +388,8 @@ const Profile = () => {
                     disabled={!isEditing || loading}
                     isInvalid={!!errors.address}
                     errorMessage={errors.address}
-                    className='w-full'
+                    className='w-full add-input'
+                    id='add-field'
                   />
                 </div>
               </form>
@@ -394,6 +400,8 @@ const Profile = () => {
                 <Divider />
                 <CardFooter className='flex justify-end gap-3 px-6 py-4'>
                   <Button
+                    id="cancel-button"
+                    className="form-button cancel"
                     variant='flat'
                     color='danger'
                     startContent={<X size={16} />}
@@ -403,6 +411,8 @@ const Profile = () => {
                     Cancel
                   </Button>
                   <Button
+                    id="update-button"
+                    className="form-button update"
                     color='primary'
                     startContent={loading ? null : <Save size={16} />}
                     onClick={handleUpdateClick}
