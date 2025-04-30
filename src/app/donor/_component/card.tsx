@@ -217,15 +217,17 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
             View Donations
           </Button>
           <Button
-            color='primary'
-            startContent={<Heart size={16} />}
-            className='font-medium'
-            disabled={remaining === 0}
-          >
-            <SponsorFormModal data={{ id, name }}>
-              {remaining === 0 ? 'Fully Funded' : 'Sponsor Now'}
-            </SponsorFormModal>
-          </Button>
+  color='primary'
+  startContent={<Heart size={16} />}
+  className='font-medium sponsor-button' // Added specific class
+  disabled={remaining === 0}
+  data-testid={`sponsor-button-${id}`} // Unique test ID
+  data-patient={name} // Additional data attribute
+>
+  <SponsorFormModal data={{ id, name }}>
+    {remaining === 0 ? 'Fully Funded' : 'Sponsor Now'}
+  </SponsorFormModal>
+</Button>
         </div>
       </CardFooter>
     </Card>
