@@ -84,7 +84,7 @@ export default function SponsorFormModal({
                       }`}
                     />
                     {errors.amount && (
-                      <p className='mt-1 text-sm text-red-500'>
+                      <p id="amount-error" className='mt-1 text-sm text-red-500'>
                         {errors.amount.message}
                       </p>
                     )}
@@ -103,7 +103,7 @@ export default function SponsorFormModal({
                       }`}
                     />
                     {errors.patientName && (
-                      <p className='mt-1 text-sm text-red-500'>
+                      <p id="patientName-error" className='mt-1 text-sm text-red-500'>
                         {errors.patientName.message}
                       </p>
                     )}
@@ -137,17 +137,22 @@ export default function SponsorFormModal({
                           {...field}
                         >
                           <Radio
-                            description='Other Donators Also able to see your message'
-                            value='public'
-                          >
-                            Public
-                          </Radio>
-                          <Radio
-                            description='Only the Patient can see the message'
-                            value='private'
-                          >
-                            Private
-                          </Radio>
+  id="public-radio"
+  className="donation-radio"
+  description="Other Donators Also able to see your message"
+  value="public"
+>
+  Public
+</Radio>
+<Radio
+  id="private-radio"
+  className="donation-radio"
+  description="Only the Patient can see the message"
+  value="private"
+>
+  Private
+</Radio>
+
                         </RadioGroup>
                       )}
                     />
