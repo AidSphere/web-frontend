@@ -73,4 +73,40 @@ test('Clicking Sponsor Now navigates to sponsor page and click pay button withou
 
 });
 
+test('Click Sponsor Now to navigate to the sponsor page. Enter invalid data in the fields. Click the Pay button.', async ({ browser }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  await page.goto('http://localhost:3000/donor/home');
+
+  const SponsorBtn = page.locator('[data-testid="sponsor-button-3"]');
+
+  // Just click — don't wait for navigation
+  await SponsorBtn.click();
+
+  //Wait for the sponsor form itself (reliable check)
+  await page.waitForSelector('#amount', { state: 'visible' });
+  await page.waitForSelector('#patientName', { state: 'visible' });
+  await page.waitForSelector('#message', { state: 'visible' });
+
+ 
+ 
+
+  await page.locator('#amount').fill('Yashodha');
+  await page.locator('#patientName').fill('Ushan');
+  await page.locator('#message').fill('Get well soon');
+  await page.locator('#public-radio').click(); // Check the radio button for public visibility
+  await page.locator('button:text("Pay")').click(); // Submit the form
+  console.log(await page.locator('#amount-error').textContent()); // Print the error message
+  await expect(page.locator('#amount-error')).toContainText('Amount must'); // Assert error message
+
+
+});
+
+
+
+
+
+
+
 
