@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { add } from 'date-fns';
 import { promise } from 'zod';
 
 test('Check page loads with patients', async ({ browser }) => {
@@ -160,7 +161,7 @@ test('Profile page load - Visible Test', async ({ page }) => {
  
 });
 
-test.only('Edit the profile', async ({ page }) => { 
+test('Edit the profile succesfully', async ({ page }) => { 
   //Navigate to donor homepage (visible)
   await page.goto('http://localhost:3000/donor/home');
   
@@ -191,6 +192,60 @@ test.only('Edit the profile', async ({ page }) => {
   console.log('Success message:', await page.locator('.success-alert').textContent()); // Print the success message
   expect(page.locator('.success-alert')).toContainText('Profile updated successfully'); // Assert success message
   await page.waitForTimeout(2000); // Extended pause to see result
+
+
+
+  
+});
+
+test.only('Edit the profile click the cancel button', async ({ page }) => { 
+  //Navigate to donor homepage (visible)
+  await page.goto('http://localhost:3000/donor/home');
+  
+  const profileLink = page.locator('[href="/donor/profile"]');
+  await expect(profileLink).toBeVisible();
+  
+  //Click with visible navigation
+  await Promise.all([
+    page.waitForURL('http://localhost:3000/donor/profile'),
+    profileLink.click()
+  ]);
+
+  page.locator('button:has-text("Edit Profile")').click(); // Click the Edit button
+  
+
+ 
+  await page.locator('#cancel-button').click(); // Click the cancel button
+  await page.waitForTimeout(2000); // Extended pause to see result
+  
+  const email = await page.locator('#email-display').textContent() || '';
+  await expect(page.locator('#email-display')).toContainText(email);
+
+  const nic = await page.locator('#nic-display').textContent() || '';
+  await expect(page.locator('#nic-display')).toContainText(nic);
+
+  const phone = await page.locator('#phone-display').textContent() || '';
+  await expect(page.locator('#phone-display')).toContainText(phone);
+
+  const address = await page.locator('#add-display').textContent() || '';
+  await expect(page.locator('#add-display')).toContainText(address);
+
+  await page.waitForTimeout(2000); // Extended pause to see result
+
+
+
+
+
+
+  
+
+
+
+
+  // await page.locator('.success-alert').textContent(); // Get the success message
+  // console.log('Success message:', await page.locator('.success-alert').textContent()); // Print the success message
+  // expect(page.locator('.success-alert')).toContainText('Profile updated successfully'); // Assert success message
+  // await page.waitForTimeout(2000); // Extended pause to see result
 
 
 
