@@ -1,18 +1,31 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
-export default defineConfig({
-  testDir: './tests', // This is where your tests will live
-  timeout: 30000,
-  expect: { timeout: 5000 },
-  fullyParallel: true,
-  reporter: 'html',
+const config=({
+  
+  testDir: './tests',
+  timeout: 30 * 1000, // 40 seconds for all actions
+  expect: {
+    timeout: 5000, // 40 seconds for assertions
+  },
+  reporter :'html', // Use HTML reporter
+  
   use: {
-    baseURL: 'http://localhost:3000', // Your Next.js dev server
-    trace: 'on-first-retry',
+    browserName: 'chromium', // Default browser
+    headless: false, // Run tests in headless mode
+    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
   },
-  webServer: {
-    command: 'npm run dev', // Command to start Next.js
-    url: 'http://localhost:3000',
-    timeout: 120000,
-  },
+
+  /* Configure projects for major browsers */
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    
+  ],
+
+  
 });
+module.exports = config;
+
