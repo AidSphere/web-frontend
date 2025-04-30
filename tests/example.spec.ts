@@ -3,24 +3,20 @@ import { add } from 'date-fns';
 import { promise } from 'zod';
 
 test('Display patient list on donor home page', async ({ browser }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
 
-  const context = await browser.newContext(); // Fresh browser instance
-  const page = await context.newPage();       // New tab
+  await page.goto('http://localhost:3000/donor/home');
 
-  await page.goto('http://localhost:3000/donor/home'); // Go to URL
+  const homeHeader = page.locator(".text-3xl");
+  console.log(await homeHeader.textContent());
 
-  const Home =page.locator(".text-3xl");
-  console.log(await Home.textContent()); // Print the text content of the element with class "text-3xl"
+  const patientNames = page.locator(".text-xl");
+  console.log(await patientNames.count());
+  console.log(await patientNames.first().textContent());
 
-  const PatientNames = page.locator(".text-xl");
-  console.log(await PatientNames.count()); // Print the number of elements with class "text-xl"
-  console.log(await PatientNames.first().textContent()); // Print the text content of the first element with class "text-xl"
-
-  const AllPatientNames=await PatientNames.allTextContents(); // Get all text contents of elements with class "text-xl"
-  console.log(AllPatientNames); // Print all patient names
-
-
-
+  const allPatientNames = await patientNames.allTextContents();
+  console.log(allPatientNames);
 });
 
 test('Navigate to sponsor page when Sponsor Now is clicked', async ({ browser }) => {
@@ -29,24 +25,18 @@ test('Navigate to sponsor page when Sponsor Now is clicked', async ({ browser })
 
   await page.goto('http://localhost:3000/donor/home');
 
-  const SponsorBtn = page.locator('[data-testid="sponsor-button-3"]');
+  const sponsorBtn = page.locator('[data-testid="sponsor-button-3"]');
+  await sponsorBtn.click();
 
-  // Just click — don't wait for navigation
-  await SponsorBtn.click();
-
-  //Wait for the sponsor form itself (reliable check)
   await page.waitForSelector('#amount', { state: 'visible' });
   await page.waitForSelector('#patientName', { state: 'visible' });
   await page.waitForSelector('#message', { state: 'visible' });
 
-  // Now fill values
   await page.locator('#amount').fill('1000');
   await page.locator('#patientName').fill('Ushan');
   await page.locator('#message').fill('Get well soon');
-  await page.locator('#public-radio').click(); // Check the radio button for public visibility
-  await page.locator('button:text("Pay")').click(); // Submit the form
-
-
+  await page.locator('#public-radio').click();
+  await page.locator('button:text("Pay")').click();
 });
 
 test('Validate sponsor form with empty fields on Pay button click', async ({ browser }) => {
@@ -55,24 +45,20 @@ test('Validate sponsor form with empty fields on Pay button click', async ({ bro
 
   await page.goto('http://localhost:3000/donor/home');
 
-  const SponsorBtn = page.locator('[data-testid="sponsor-button-3"]');
+  const sponsorBtn = page.locator('[data-testid="sponsor-button-3"]');
+  await sponsorBtn.click();
 
-  // Just click — don't wait for navigation
-  await SponsorBtn.click();
-
-  //Wait for the sponsor form itself (reliable check)
   await page.waitForSelector('#amount', { state: 'visible' });
   await page.waitForSelector('#patientName', { state: 'visible' });
   await page.waitForSelector('#message', { state: 'visible' });
 
-  // Now fill values
   await page.locator('#amount').fill('1000');
   await page.locator('#message').fill('Get well soon');
-  await page.locator('#public-radio').click(); // Check the radio button for public visibility
-  await page.locator('button:text("Pay")').click(); // Submit the form
-  console.log(await page.locator('#patientName-error').textContent()); // Print the error message
-  expect(page.locator('#patientName-error')).toContainText('Patient'); // Assert error message
+  await page.locator('#public-radio').click();
+  await page.locator('button:text("Pay")').click();
 
+  console.log(await page.locator('#patientName-error').textContent());
+  expect(page.locator('#patientName-error')).toContainText('Patient');
 });
 
 test('Display validation errors for invalid data in sponsor form', async ({ browser }) => {
@@ -81,143 +67,111 @@ test('Display validation errors for invalid data in sponsor form', async ({ brow
 
   await page.goto('http://localhost:3000/donor/home');
 
-  const SponsorBtn = page.locator('[data-testid="sponsor-button-3"]');
+  const sponsorBtn = page.locator('[data-testid="sponsor-button-3"]');
+  await sponsorBtn.click();
 
-  // Just click — don't wait for navigation
-  await SponsorBtn.click();
-
-  //Wait for the sponsor form itself (reliable check)
   await page.waitForSelector('#amount', { state: 'visible' });
   await page.waitForSelector('#patientName', { state: 'visible' });
   await page.waitForSelector('#message', { state: 'visible' });
 
- 
- 
-
-  await page.locator('#amount').fill('Yashodha');
+  await page.locator('#amount').fill('Yashodha'); // Invalid input
   await page.locator('#patientName').fill('Ushan');
   await page.locator('#message').fill('Get well soon');
-  await page.locator('#public-radio').click(); // Check the radio button for public visibility
-  await page.locator('button:text("Pay")').click(); // Submit the form
-  console.log(await page.locator('#amount-error').textContent()); // Print the error message
-  await expect(page.locator('#amount-error')).toContainText('Amount must'); // Assert error message
+  await page.locator('#public-radio').click();
+  await page.locator('button:text("Pay")').click();
 
-
+  console.log(await page.locator('#amount-error').textContent());
+  await expect(page.locator('#amount-error')).toContainText('Amount must');
 });
 
-
-
-
-
 test('Display all donations made to selected patient', async ({ page }) => {
-  //Navigate to donor homepage
   await page.goto('http://localhost:3000/donor/home');
 
-  //Locate and verify view donations button
   const viewDonation = page.locator('[id="view-donations-3"]');
   await expect(viewDonation).toBeVisible();
   await expect(viewDonation).toHaveText('View Donations');
 
-  //Click and wait for navigation
   await Promise.all([
-    page.waitForURL('http://localhost:3000/donor/home/3'), // Full URL match
-    viewDonation.click()
+    page.waitForURL('http://localhost:3000/donor/home/3'),
+    viewDonation.click(),
   ]);
 
-  //Verify donation list page
   await expect(page).toHaveURL('http://localhost:3000/donor/home/3');
   await expect(page.locator('#donation-list-heading')).toBeVisible();
   await expect(page.locator('#donation-list-heading')).toContainText('Donation');
-  
-  // Debug output
+
   console.log('Current URL:', page.url());
   console.log('Header content:', await page.locator('#donation-list-heading').textContent());
 });
 
-test('Load donor profile page and verify visibility of content', async ({ page }) => { 
-  //Navigate to donor homepage (visible)
+test('Load donor profile page and verify visibility of content', async ({ page }) => {
   await page.goto('http://localhost:3000/donor/home');
-  await page.waitForTimeout(1000); // Pause to see the page
+  await page.waitForTimeout(1000);
 
-  //Locate and highlight profile link
   const profileLink = page.locator('[href="/donor/profile"]');
   await expect(profileLink).toBeVisible();
-  await profileLink.highlight(); // Visual indicator
-  await page.waitForTimeout(1000); // Pause to see highlighted element
+  await profileLink.highlight();
+  await page.waitForTimeout(1000);
 
-  //Click with visible navigation
   await Promise.all([
     page.waitForURL('http://localhost:3000/donor/profile'),
-    profileLink.click()
+    profileLink.click(),
   ]);
-  await page.waitForTimeout(1000); // Pause to see navigation
 
-  //Verify and highlight profile header
+  await page.waitForTimeout(1000);
+
   const header = page.locator('h1:has-text("My Profile")');
   await expect(header).toBeVisible();
   await header.highlight();
-  await page.waitForTimeout(2000); // Extended pause to see result
+  await page.waitForTimeout(2000);
+
   console.log('Profile header content:', await header.textContent());
- 
 });
 
-test('Update profile information with valid input', async ({ page }) => { 
-  //Navigate to donor homepage (visible)
+test('Update profile information with valid input', async ({ page }) => {
   await page.goto('http://localhost:3000/donor/home');
-  
+
   const profileLink = page.locator('[href="/donor/profile"]');
   await expect(profileLink).toBeVisible();
-  
-  //Click with visible navigation
+
   await Promise.all([
     page.waitForURL('http://localhost:3000/donor/profile'),
-    profileLink.click()
+    profileLink.click(),
   ]);
 
-  page.locator('button:has-text("Edit Profile")').click(); // Click the Edit button
-  await page.waitForTimeout(2000); // Extended pause to see result
+  page.locator('button:has-text("Edit Profile")').click();
+  await page.waitForTimeout(2000);
 
+  await page.locator('#first-name-field').fill('Ushan');
+  await page.locator('#last-name-field').fill('Senevirathna');
+  await page.locator('#nic-field').fill('123456789V');
+  await page.locator('#email-field').fill('ushan@gmail.com');
+  await page.locator('#phone-field').fill('0712345678');
+  await page.locator('#add-field').fill('123 Main St');
 
-  await page.locator('#first-name-field').fill('Ushan'); // Fill the first name field
-  await page.locator('#last-name-field').fill('Senevirathna'); // Fill the last name field
-  await page.locator('#nic-field').fill('123456789V'); // Fill the NIC field
-  await page.locator('#email-field').fill('ushan@gmail.com'); // Fill the email field
-  await page.locator('#phone-field').fill('0712345678'); // Fill the phone number field
-  await page.locator('#add-field').fill('123 Main St'); // Fill the address field
+  await page.locator('#update-button').click();
+  await page.waitForTimeout(2000);
 
-  await page.locator('#update-button').click(); // Click the Update button
-  await page.waitForTimeout(2000); // Extended pause to see result
-
-  await page.locator('.success-alert').textContent(); // Get the success message
-  console.log('Success message:', await page.locator('.success-alert').textContent()); // Print the success message
-  expect(page.locator('.success-alert')).toContainText('Profile updated successfully'); // Assert success message
-  await page.waitForTimeout(2000); // Extended pause to see result
-
-
-
-  
+  console.log('Success message:', await page.locator('.success-alert').textContent());
+  expect(page.locator('.success-alert')).toContainText('Profile updated successfully');
+  await page.waitForTimeout(2000);
 });
 
-test('Cancel profile editing and revert to previous data', async ({ page }) => { 
-  //Navigate to donor homepage (visible)
+test('Cancel profile editing and revert to previous data', async ({ page }) => {
   await page.goto('http://localhost:3000/donor/home');
-  
+
   const profileLink = page.locator('[href="/donor/profile"]');
   await expect(profileLink).toBeVisible();
-  
-  //Click with visible navigation
+
   await Promise.all([
     page.waitForURL('http://localhost:3000/donor/profile'),
-    profileLink.click()
+    profileLink.click(),
   ]);
 
-  page.locator('button:has-text("Edit Profile")').click(); // Click the Edit button
-  
+  page.locator('button:has-text("Edit Profile")').click();
+  await page.locator('#cancel-button').click();
+  await page.waitForTimeout(2000);
 
- 
-  await page.locator('#cancel-button').click(); // Click the cancel button
-  await page.waitForTimeout(2000); // Extended pause to see result
-  
   const email = await page.locator('#email-display').textContent() || '';
   await expect(page.locator('#email-display')).toContainText(email);
 
@@ -230,24 +184,5 @@ test('Cancel profile editing and revert to previous data', async ({ page }) => {
   const address = await page.locator('#add-display').textContent() || '';
   await expect(page.locator('#add-display')).toContainText(address);
 
-  await page.waitForTimeout(2000); // Extended pause to see result
-
-
-
-
-
-
-  
-
-
-
-
-  // await page.locator('.success-alert').textContent(); // Get the success message
-  // console.log('Success message:', await page.locator('.success-alert').textContent()); // Print the success message
-  // expect(page.locator('.success-alert')).toContainText('Profile updated successfully'); // Assert success message
-  // await page.waitForTimeout(2000); // Extended pause to see result
-
-
-
-  
+  await page.waitForTimeout(2000);
 });
