@@ -133,7 +133,7 @@ test('View donations for patient', async ({ page }) => {
   console.log('Header content:', await page.locator('#donation-list-heading').textContent());
 });
 
-test.only('Profile page load - Visible Test', async ({ page }) => { 
+test('Profile page load - Visible Test', async ({ page }) => { 
   //Navigate to donor homepage (visible)
   await page.goto('http://localhost:3000/donor/home');
   await page.waitForTimeout(1000); // Pause to see the page
@@ -158,4 +158,41 @@ test.only('Profile page load - Visible Test', async ({ page }) => {
   await page.waitForTimeout(2000); // Extended pause to see result
   console.log('Profile header content:', await header.textContent());
  
+});
+
+test.only('Edit the profile', async ({ page }) => { 
+  //Navigate to donor homepage (visible)
+  await page.goto('http://localhost:3000/donor/home');
+  
+  const profileLink = page.locator('[href="/donor/profile"]');
+  await expect(profileLink).toBeVisible();
+  
+  //Click with visible navigation
+  await Promise.all([
+    page.waitForURL('http://localhost:3000/donor/profile'),
+    profileLink.click()
+  ]);
+
+  page.locator('button:has-text("Edit Profile")').click(); // Click the Edit button
+  await page.waitForTimeout(2000); // Extended pause to see result
+
+
+  await page.locator('#first-name-field').fill('Ushan'); // Fill the first name field
+  await page.locator('#last-name-field').fill('Senevirathna'); // Fill the last name field
+  await page.locator('#nic-field').fill('123456789V'); // Fill the NIC field
+  await page.locator('#email-field').fill('ushan@gmail.com'); // Fill the email field
+  await page.locator('#phone-field').fill('0712345678'); // Fill the phone number field
+  await page.locator('#add-field').fill('123 Main St'); // Fill the address field
+
+  await page.locator('#update-button').click(); // Click the Update button
+  await page.waitForTimeout(2000); // Extended pause to see result
+
+  await page.locator('.success-alert').textContent(); // Get the success message
+  console.log('Success message:', await page.locator('.success-alert').textContent()); // Print the success message
+  expect(page.locator('.success-alert')).toContainText('Profile updated successfully'); // Assert success message
+  await page.waitForTimeout(2000); // Extended pause to see result
+
+
+
+  
 });
