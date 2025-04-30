@@ -213,6 +213,7 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
             color='primary'
             startContent={<Eye size={16} />}
             className='font-medium'
+            id={`view-donations-${id}`}  // Added unique ID
           >
             View Donations
           </Button>
