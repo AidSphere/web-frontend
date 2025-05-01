@@ -30,7 +30,6 @@ jobs:
         run: npm run start &
         env:
           PORT: 3000
-        # this runs the app in background
 
       - name: Wait for app to be ready
         run: npx wait-on http://localhost:3000
