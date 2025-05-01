@@ -1,0 +1,39 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium
+
+      - name: Build the Next.js app
+        run: npm run build
+
+      - name: Run Playwright tests
+        run: npx playwright test src/tests/visual.spec.ts
+        #continue-on-error: true
+
+      - name: Upload test screenshots as artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots
+          path: src/tests/visual.spec.ts-snapshots/

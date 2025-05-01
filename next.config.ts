@@ -19,7 +19,10 @@ const nextConfig: NextConfig = {
         hostname: 'api.qrserver.com'
       }
     ]
-  }
+  },
+  serverActions: {
+    bodySizeLimit: '10mb', // Increase the limit (e.g., to 10MB)
+  },
   /* config options here */
 };
 
