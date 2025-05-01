@@ -8,10 +8,10 @@ test('Display patient list on donor home page', async ({ browser }) => {
 
   await page.goto('http://localhost:3000/donor/home');
 
-  const homeHeader = page.locator(".text-3xl");
+  const homeHeader = page.locator('.text-3xl');
   console.log(await homeHeader.textContent());
 
-  const patientNames = page.locator(".text-xl");
+  const patientNames = page.locator('.text-xl');
   console.log(await patientNames.count());
   console.log(await patientNames.first().textContent());
 
@@ -19,7 +19,9 @@ test('Display patient list on donor home page', async ({ browser }) => {
   console.log(allPatientNames);
 });
 
-test('Navigate to sponsor page when Sponsor Now is clicked', async ({ browser }) => {
+test('Navigate to sponsor page when Sponsor Now is clicked', async ({
+  browser,
+}) => {
   const context = await browser.newContext();
   const page = await context.newPage();
 
@@ -39,7 +41,9 @@ test('Navigate to sponsor page when Sponsor Now is clicked', async ({ browser })
   await page.locator('button:text("Pay")').click();
 });
 
-test('Validate sponsor form with empty fields on Pay button click', async ({ browser }) => {
+test('Validate sponsor form with empty fields on Pay button click', async ({
+  browser,
+}) => {
   const context = await browser.newContext();
   const page = await context.newPage();
 
@@ -61,7 +65,9 @@ test('Validate sponsor form with empty fields on Pay button click', async ({ bro
   expect(page.locator('#patientName-error')).toContainText('Patient');
 });
 
-test('Display validation errors for invalid data in sponsor form', async ({ browser }) => {
+test('Display validation errors for invalid data in sponsor form', async ({
+  browser,
+}) => {
   const context = await browser.newContext();
   const page = await context.newPage();
 
@@ -98,13 +104,20 @@ test('Display all donations made to selected patient', async ({ page }) => {
 
   await expect(page).toHaveURL('http://localhost:3000/donor/home/3');
   await expect(page.locator('#donation-list-heading')).toBeVisible();
-  await expect(page.locator('#donation-list-heading')).toContainText('Donation');
+  await expect(page.locator('#donation-list-heading')).toContainText(
+    'Donation'
+  );
 
   console.log('Current URL:', page.url());
-  console.log('Header content:', await page.locator('#donation-list-heading').textContent());
+  console.log(
+    'Header content:',
+    await page.locator('#donation-list-heading').textContent()
+  );
 });
 
-test('Load donor profile page and verify visibility of content', async ({ page }) => {
+test('Load donor profile page and verify visibility of content', async ({
+  page,
+}) => {
   await page.goto('http://localhost:3000/donor/home');
   await page.waitForTimeout(1000);
 
@@ -152,8 +165,13 @@ test('Update profile information with valid input', async ({ page }) => {
   await page.locator('#update-button').click();
   await page.waitForTimeout(2000);
 
-  console.log('Success message:', await page.locator('.success-alert').textContent());
-  expect(page.locator('.success-alert')).toContainText('Profile updated successfully');
+  console.log(
+    'Success message:',
+    await page.locator('.success-alert').textContent()
+  );
+  expect(page.locator('.success-alert')).toContainText(
+    'Profile updated successfully'
+  );
   await page.waitForTimeout(2000);
 });
 
@@ -172,16 +190,16 @@ test('Cancel profile editing and revert to previous data', async ({ page }) => {
   await page.locator('#cancel-button').click();
   await page.waitForTimeout(2000);
 
-  const email = await page.locator('#email-display').textContent() || '';
+  const email = (await page.locator('#email-display').textContent()) || '';
   await expect(page.locator('#email-display')).toContainText(email);
 
-  const nic = await page.locator('#nic-display').textContent() || '';
+  const nic = (await page.locator('#nic-display').textContent()) || '';
   await expect(page.locator('#nic-display')).toContainText(nic);
 
-  const phone = await page.locator('#phone-display').textContent() || '';
+  const phone = (await page.locator('#phone-display').textContent()) || '';
   await expect(page.locator('#phone-display')).toContainText(phone);
 
-  const address = await page.locator('#add-display').textContent() || '';
+  const address = (await page.locator('#add-display').textContent()) || '';
   await expect(page.locator('#add-display')).toContainText(address);
 
   await page.waitForTimeout(2000);
