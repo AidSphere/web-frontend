@@ -54,6 +54,19 @@ interface DrugImporter {
   licenseProofUrl?: string;
 }
 
+// Define PendingDrugImporter interface for approval requests
+interface PendingDrugImporter {
+  id: number;
+  email: string;
+  name: string;
+  phone: string;
+  address: string | null;
+  licenseNumber: string;
+  nicotineProofFilePath: string | null;
+  licenseProofFilePath: string | null;
+  enabled: boolean;
+}
+
 /**
  * Service for admin related operations
  */
@@ -98,6 +111,32 @@ class AdminService {
    */
   async createDrugImporter(drugImporter: DrugImporter): Promise<ApiResponse> {
     return this.apiClient.post(`${this.API_PATH}/createDrgImporter`, drugImporter);
+  }
+
+  /**
+   * Get all pending drug importer requests
+   * @returns API response with pending drug importers
+   */
+  async getPendingDrugImporters(): Promise<ApiResponse<PendingDrugImporter[]>> {
+    return this.apiClient.get(`${this.API_PATH}/access/drug-importer/pending`);
+  }
+
+  /**
+   * Approve a drug importer request
+   * @param email Email of the drug importer to approve
+   * @returns API response
+   */
+  async approveDrugImporter(email: string): Promise<ApiResponse> {
+    return this.apiClient.post(`${this.API_PATH}/access/approve/${email}`);
+  }
+
+  /**
+   * Reject a drug importer request
+   * @param email Email of the drug importer to reject
+   * @returns API response
+   */
+  async rejectDrugImporter(email: string): Promise<ApiResponse> {
+    return this.apiClient.post(`${this.API_PATH}/access/reject/${email}`);
   }
 
   /**
