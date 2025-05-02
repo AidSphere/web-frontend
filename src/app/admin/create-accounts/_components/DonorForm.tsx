@@ -84,56 +84,66 @@ const DonorForm = ({ onCancel }) => {
       // Call API to register donor
       const response = await AdminService.createDonor(donorData);
       
-      // Show success toast with the message from the API if available
-      addToast({
-        title: "Success",
-        description: response.message || "Donor account created successfully"
-      });
-      
-      // Reset the form after successful submission
-      donorForm.reset();
-      
-    } catch (error) {
-      console.error('Error submitting donor form:', error);
-      
-      // Handle different types of errors
-      if (error.status === 409) {
-        // Handle duplicate email or NIC - show field-specific errors
-        if (error.message.toLowerCase().includes('email')) {
-          setServerErrors(prev => ({ ...prev, email: error.message }));
-          donorForm.setError('email', { type: 'server', message: error.message });
-        } else if (error.message.toLowerCase().includes('nic')) {
-          setServerErrors(prev => ({ ...prev, nic: error.message }));
-          donorForm.setError('nic', { type: 'server', message: error.message });
-        } else {
-          addToast({
-            title: "Error",
-            description: error.message,
-            hideIcon: false
-          });
-        }
-      } else if (error.status === 400 || error.status === 422) {
-        // Validation errors - display the error message
+      // Check if the operation was successful based on the success flag
+      if (response.success) {
+        // Show success toast with the message from the API if available
         addToast({
-          title: "Validation Error",
-          description: error.message || "Invalid donor information provided"
+          title: "Success",
+          description: response.message || "Donor account created successfully"
         });
         
-        // If there are field-specific errors in the response, set them on the form
-        if (error.data?.errors) {
-          Object.entries(error.data.errors).forEach(([field, message]) => {
-            if (donorForm.getValues(field) !== undefined) {
-              donorForm.setError(field, { type: 'server', message: message as string });
-            }
+        // Reset the form after successful submission
+        donorForm.reset();
+      } else {
+        // Handle error response
+        console.warn('Error creating donor:', response.message);
+        
+        // Handle different types of errors
+        if (response.status === 409) {
+          // Handle duplicate email or NIC - show field-specific errors
+          if (response.message.toLowerCase().includes('email')) {
+            setServerErrors(prev => ({ ...prev, email: response.message }));
+            donorForm.setError('email', { type: 'server', message: response.message });
+          } else if (response.message.toLowerCase().includes('nic')) {
+            setServerErrors(prev => ({ ...prev, nic: response.message }));
+            donorForm.setError('nic', { type: 'server', message: response.message });
+          } else {
+            addToast({
+              title: "Error",
+              description: response.message,
+              hideIcon: false
+            });
+          }
+        } else if (response.status === 400 || response.status === 422) {
+          // Validation errors - display the error message
+          addToast({
+            title: "Validation Error",
+            description: response.message || "Invalid donor information provided"
+          });
+          
+          // If there are field-specific errors in the response, set them on the form
+          if (response.data?.errors) {
+            Object.entries(response.data.errors).forEach(([field, message]) => {
+              if (donorForm.getValues(field) !== undefined) {
+                donorForm.setError(field, { type: 'server', message: message as string });
+              }
+            });
+          }
+        } else {
+          // General error
+          addToast({
+            title: "Error",
+            description: response.message || 'Failed to create donor account'
           });
         }
-      } else {
-        // General error
-        addToast({
-          title: "Error",
-          description: error.message || 'Failed to create donor account'
-        });
       }
+    } catch (error) {
+      // This catch block should rarely be reached now that errors are handled in the service
+      console.error('Unexpected error in donor form submission:', error);
+      addToast({
+        title: "Unexpected Error",
+        description: "An unexpected error occurred. Please try again later."
+      });
     } finally {
       setIsSubmitting(false);
     }
