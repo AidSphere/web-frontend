@@ -53,11 +53,11 @@ class ApiService {
     // Request interceptor
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        // // Add auth token if available
-        // const token = localStorage.getItem('token');
-        // if (token) {
-        //   config.headers.Authorization = `Bearer ${token}`;
-        // }
+        // Add auth token if available
+        const token = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJET05PUiJdLCJ1c2VybmFtZSI6ImpvaG4uZG9lQGV4YW1wbGVlZS5jb20iLCJzdWIiOiJqb2huLmRvZUBleGFtcGxlZWUuY29tIiwiaWF0IjoxNzQ2MjEzODc0LCJleHAiOjE3NDYyMTc0NzR9.CLj-xCT5GsYjTPKB0yQ6OJYd5SDw-WRa5BWjIBxDsZ0";
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
       },
       (error) => {
