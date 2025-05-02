@@ -1,42 +1,134 @@
-import { uploadImageToCloudinary } from '@/app/actions/uploadActions';
+import { uploadFileToCloudinary } from '@/app/actions/uploadActions';
 import { toast } from '@/hooks/use-toast';
 
 /**
- * Uploads an array of image files to Cloudinary using a server action.
- *
- * @param files - An array of File objects to upload.
- * @param folder - The Cloudinary folder name to upload the images into.
- * @returns A promise that resolves to an array of successfully uploaded image URLs.
- * @throws If any upload fails.
+ * File types supported by the upload utils
  */
-export async function uploadImages(
+export type FileType = 'image' | 'pdf' | 'any';
+
+/**
+ * Validates if a file is of the expected type
+ */
+function validateFileType(file: File, type: FileType): boolean {
+  if (type === 'any') return true;
+
+  if (type === 'image') {
+    return file.type.startsWith('image/');
+  }
+
+  if (type === 'pdf') {
+    return file.type === 'application/pdf';
+  }
+
+  return false;
+}
+
+/**
+ * Uploads a single file to Cloudinary
+ *
+ * @param file - The file to upload
+ * @param folder - The Cloudinary folder to upload to
+ * @param path - The path to revalidate after upload (optional)
+ * @param type - The expected file type (image, pdf, or any)
+ * @returns A promise that resolves to the uploaded file URL
+ */
+export async function uploadFile(
+  file: File,
+  folder: string,
+  path?: string,
+  type: FileType = 'any'
+): Promise<string> {
+  if (!file) {
+    throw new Error('No file provided');
+  }
+
+  if (!validateFileType(file, type)) {
+    throw new Error(`Invalid file type. Expected ${type}, got ${file.type}`);
+  }
+
+  toast({
+    title: 'Uploading file...',
+    description: `Uploading ${file.name}. Please wait.`,
+  });
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('folder', folder);
+  if (path) formData.append('path', path);
+
+  const result = await uploadFileToCloudinary(formData);
+
+  if (!result.success || !result.url) {
+    const errorMsg = result.error || `Failed to upload ${file.name}`;
+    toast({
+      title: 'Upload Failed',
+      description: errorMsg,
+      variant: 'destructive',
+    });
+    throw new Error(errorMsg);
+  }
+
+  toast({
+    title: 'Upload Complete',
+    description: `${file.name} uploaded successfully.`,
+  });
+
+  return result.url;
+}
+
+/**
+ * Uploads multiple files of the specified type to Cloudinary
+ *
+ * @param files - Array of files to upload
+ * @param folder - The Cloudinary folder to upload to
+ * @param path - The path to revalidate after upload (optional)
+ * @param type - The expected file type (image, pdf, or any)
+ * @returns A promise that resolves to an array of uploaded file URLs
+ */
+export async function uploadFiles(
   files: File[],
-  folder: string
+  folder: string,
+  path?: string,
+  type: FileType = 'any'
 ): Promise<string[]> {
   if (!files || files.length === 0) {
     return []; // Return empty array if no files
   }
 
-  // Ensure all items are File objects (optional, but good practice)
-  const validFiles = files.filter((f) => f instanceof File);
-  if (validFiles.length !== files.length) {
-    console.warn('Some items provided to uploadImages were not File objects.');
-  }
+  // Filter for valid file objects and correct file types
+  const validFiles = files.filter(
+    (f) => f instanceof File && validateFileType(f, type)
+  );
+
   if (validFiles.length === 0) {
+    toast({
+      title: 'No Valid Files',
+      description: `None of the files match the expected ${type} type.`,
+      variant: 'destructive',
+    });
     return [];
   }
 
+  if (validFiles.length !== files.length) {
+    toast({
+      title: 'Some Files Skipped',
+      description: `${files.length - validFiles.length} files were skipped due to invalid type.`,
+      variant: 'destructive',
+    });
+  }
+
   toast({
-    title: 'Uploading images...',
-    description: `Uploading ${validFiles.length} image(s). Please wait.`,
+    title: 'Uploading files...',
+    description: `Uploading ${validFiles.length} file(s). Please wait.`,
   });
 
   const uploadPromises = validFiles.map(async (file) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', folder);
+    if (path) formData.append('path', path);
 
-    const result = await uploadImageToCloudinary(formData);
+    const result = await uploadFileToCloudinary(formData);
 
     if (!result.success || !result.url) {
       throw new Error(result.error || `Failed to upload ${file.name}`);
@@ -48,21 +140,64 @@ export async function uploadImages(
     // Wait for all uploads to complete
     const uploadedUrls = await Promise.all(uploadPromises);
     toast({
-      title: 'Image uploads complete!',
-      description: `${uploadedUrls.length} image(s) uploaded successfully.`,
+      title: 'Uploads complete!',
+      description: `${uploadedUrls.length} file(s) uploaded successfully.`,
     });
     return uploadedUrls;
   } catch (error) {
-    // Log the error and re-throw it so the calling function knows about the failure
-    console.error('Error during image uploads:', error);
+    console.error('Error during file uploads:', error);
     toast({
-      title: 'Image Upload Failed',
+      title: 'Upload Failed',
       description:
         error instanceof Error
           ? error.message
           : 'An unknown error occurred during upload.',
       variant: 'destructive',
     });
-    throw error; // Re-throw the error to be caught in the onSubmit handler
+    throw error;
   }
+}
+
+/**
+ * Uploads multiple PDF files to Cloudinary
+ */
+export async function uploadPdfs(
+  files: File[],
+  folder: string,
+  path?: string
+): Promise<string[]> {
+  return uploadFiles(files, folder, path, 'pdf');
+}
+
+/**
+ * Uploads multiple image files to Cloudinary
+ */
+export async function uploadImages(
+  files: File[],
+  folder: string,
+  path?: string
+): Promise<string[]> {
+  return uploadFiles(files, folder, path, 'image');
+}
+
+/**
+ * Uploads a single PDF file to Cloudinary
+ */
+export async function uploadPdf(
+  file: File,
+  folder: string,
+  path?: string
+): Promise<string> {
+  return uploadFile(file, folder, path, 'pdf');
+}
+
+/**
+ * Uploads a single image file to Cloudinary
+ */
+export async function uploadImage(
+  file: File,
+  folder: string,
+  path?: string
+): Promise<string> {
+  return uploadFile(file, folder, path, 'image');
 }

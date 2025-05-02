@@ -1,7 +1,7 @@
 import { AxiosResponse, AxiosError } from 'axios';
 
 import apiClient from '../apiClient';
-import { refreshAccessToken } from '@/services/api/authService';
+import { refreshAccessToken } from '@/service/api/authService';
 
 export const responseInterceptor = (response: AxiosResponse) => {
   // Process successful responses
