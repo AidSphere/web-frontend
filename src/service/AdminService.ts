@@ -67,6 +67,18 @@ interface PendingDrugImporter {
   enabled: boolean;
 }
 
+// Define PendingPatient interface for approval requests
+interface PendingPatient {
+  patientId: number;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email: string;
+  permanentAddress: string;
+  currentAddress: string | null;
+  profileImageUrl: string | null;
+}
+
 /**
  * Service for admin related operations
  */
@@ -138,6 +150,15 @@ class AdminService {
   async rejectDrugImporter(email: string): Promise<ApiResponse> {
     return this.apiClient.post(`${this.API_PATH}/access/reject/${email}`);
   }
+
+  /**
+   * Get all pending patient requests
+   * @returns API response with pending patients
+   */
+  async getPendingPatients(): Promise<ApiResponse<PendingPatient[]>> {
+    return this.apiClient.get(`${this.API_PATH}/access/patient/pending`);
+  }
+
 
   /**
    * Upload a file
