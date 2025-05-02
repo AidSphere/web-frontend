@@ -79,6 +79,34 @@ interface PendingPatient {
   profileImageUrl: string | null;
 }
 
+// Define PrescribedMedicine interface
+interface PrescribedMedicine {
+  medicine: string;
+  amount: number;
+}
+
+// Define PendingDonationRequest interface
+interface PendingDonationRequest {
+  requestId: number;
+  patientId: number;
+  title: string;
+  description: string;
+  prescriptionUrl: string;
+  status: string;
+  createdAt: string;
+  expectedDate: string;
+  hospitalName: string;
+  images: string[];
+  documents: string[];
+  prescribedMedicines: PrescribedMedicine[];
+}
+
+// Define ApprovalPayload interface
+interface ApprovalPayload {
+  status: string;
+  messageToPatient: string;
+}
+
 /**
  * Service for admin related operations
  */
@@ -159,6 +187,59 @@ class AdminService {
     return this.apiClient.get(`${this.API_PATH}/access/patient/pending`);
   }
 
+  /**
+   * Approve a patient request
+   * @param email Email of the patient to approve
+   * @returns API response
+   */
+  async approvePatient(email: string): Promise<ApiResponse> {
+    return this.apiClient.post(`${this.API_PATH}/access/approve/${email}`);
+  }
+
+  /**
+   * Reject a patient request
+   * @param email Email of the patient to reject
+   * @returns API response
+   */
+  async rejectPatient(email: string): Promise<ApiResponse> {
+    return this.apiClient.post(`${this.API_PATH}/access/reject/${email}`);
+  }
+
+  /**
+   * Get all pending donation requests
+   * @returns API response with pending donation requests
+   */
+  async getPendingDonationRequests(): Promise<ApiResponse<PendingDonationRequest[]>> {
+    return this.apiClient.get(`/donation-requests/pending`);
+  }
+
+  /**
+   * Approve a donation request
+   * @param requestId ID of the donation request to approve
+   * @param message Optional message to the patient
+   * @returns API response
+   */
+  async approveDonationRequest(requestId: number, message: string = 'Your donation request has been approved.'): Promise<ApiResponse> {
+    const payload: ApprovalPayload = {
+      status: 'ADMIN_APPROVED',
+      messageToPatient: message
+    };
+    return this.apiClient.put(`/donation-requests/${requestId}/approve`, payload);
+  }
+
+  /**
+   * Reject a donation request
+   * @param requestId ID of the donation request to reject
+   * @param message Optional message to the patient explaining the rejection
+   * @returns API response
+   */
+  async rejectDonationRequest(requestId: number, message: string = 'Your donation request has been rejected.'): Promise<ApiResponse> {
+    const payload: ApprovalPayload = {
+      status: 'REJECTED',
+      messageToPatient: message
+    };
+    return this.apiClient.put(`/donation-requests/${requestId}/approve`, payload);
+  }
 
   /**
    * Upload a file
