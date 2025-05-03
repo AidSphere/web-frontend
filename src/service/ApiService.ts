@@ -54,7 +54,7 @@ class ApiService {
     this.axiosInstance.interceptors.request.use(
       (config) => {
         // Add auth token if available
-        const token = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJET05PUiJdLCJ1c2VybmFtZSI6Imthd2Vlc2hhQHkuY29tIiwic3ViIjoia2F3ZWVzaGFAeS5jb20iLCJpYXQiOjE3NDYyNzU1MTQsImV4cCI6MTc0NjI3OTExNH0.cXAyjcq7vGtlqaI27692PaNjUSWtYJolJ5rKIM55i8Y";
+        const token = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJET05PUiJdLCJ1c2VybmFtZSI6Imthd2Vlc2hhQHkuY29tIiwic3ViIjoia2F3ZWVzaGFAeS5jb20iLCJpYXQiOjE3NDYyOTk5ODIsImV4cCI6MTc0NjMwMzU4Mn0.83NMo-3wfVi9ORQLO67ljk4nadjt1wobpNhqIOgqOQ0";
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }

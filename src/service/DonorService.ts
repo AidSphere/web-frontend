@@ -101,6 +101,15 @@ interface DonationByRequestId {
   donationRequestTitle: string;
 }
 
+// Define the donation history type from the API
+interface DonationHistory {
+  id: number;
+  amount: number;
+  message: string | null;
+  date: string | null;
+  status: boolean;
+}
+
 /**
  * Service for donor related operations
  */
@@ -147,6 +156,14 @@ class DonorService {
   }
 
   /**
+   * Get donor's donation history
+   * @returns API response with donor's donation history
+   */
+  async getDonorDonationHistory(): Promise<ApiResponse<DonationHistory[]>> {
+    return this.apiClient.get(`/donation/donationByUser`);
+  }
+
+  /**
    * Get details of a specific donation request
    * @param requestId ID of the donation request
    * @returns API response with donation request details
@@ -178,7 +195,7 @@ class DonorService {
    * @returns API response with donor profile
    */
   async getDonorProfile(): Promise<ApiResponse<DonorProfile>> {
-    return this.apiClient.get(`${this.API_PATH}/profile`);
+    return this.apiClient.get(`/donor`);
   }
 
   /**
@@ -239,5 +256,6 @@ export type {
   PaymentMethod,
   PaymentMethodPayload,
   DonationFilterParams,
-  DonationByRequestId 
+  DonationByRequestId,
+  DonationHistory
 };
