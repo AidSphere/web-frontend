@@ -53,8 +53,8 @@ class ApiService {
     // Request interceptor
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        // Add auth token if available
-        const token = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJET05PUiJdLCJ1c2VybmFtZSI6Imthd2Vlc2hhQHkuY29tIiwic3ViIjoia2F3ZWVzaGFAeS5jb20iLCJpYXQiOjE3NDYyOTk5ODIsImV4cCI6MTc0NjMwMzU4Mn0.83NMo-3wfVi9ORQLO67ljk4nadjt1wobpNhqIOgqOQ0";
+        // Get token from localStorage instead of using a hardcoded token
+        const token = localStorage.getItem('authToken');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -70,7 +70,23 @@ class ApiService {
       (response) => response,
       (error: AxiosError) => {
         // Transform error to standardized format and reject with it
-        return Promise.reject(this.handleAxiosError(error));
+        const formattedError = this.handleAxiosError(error);
+        
+        // Handle token expiration/invalidation
+        if (formattedError.status === 401) {
+          // Clear token from localStorage on auth errors
+          localStorage.removeItem('authToken');
+          
+          // Redirect to login page if needed
+          if (typeof window !== 'undefined') {
+            // Avoid redirecting if already on the login page
+            if (!window.location.pathname.includes('/auth/login')) {
+              window.location.href = '/auth/login';
+            }
+          }
+        }
+        
+        return Promise.reject(formattedError);
       }
     );
   }
@@ -85,8 +101,6 @@ class ApiService {
       message: 'An error occurred with the request',
       data: error.response?.data || null
     };
-
-    
     
     // Extract the message from the response if available
     if (error.response?.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
