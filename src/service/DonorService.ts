@@ -93,6 +93,14 @@ interface DonationFilterParams {
   sortDirection?: 'asc' | 'desc';
 }
 
+interface DonationByRequestId {
+  donorName: string;
+  donatedAmount: number;
+  donationMessage: string | null;
+  donationDate: string | null;
+  donationRequestTitle: string;
+}
+
 /**
  * Service for donor related operations
  */
@@ -156,7 +164,14 @@ class DonorService {
     return this.apiClient.get(`${this.API_PATH}/donations/${donationId}`);
   }
 
-
+  /**
+   * Get all donations for a specific donation request
+   * @param requestId ID of the donation request
+   * @returns API response with donations for the request
+   */
+  async getDonationsByRequestId(requestId: number): Promise<ApiResponse<DonationByRequestId[]>> {
+    return this.apiClient.get(`/donation/${requestId}`);
+  }
 
   /**
    * Get the donor's profile information
@@ -188,10 +203,6 @@ class DonorService {
     );
   }
 
-
-
-
-
   /**
    * Search donation requests
    * @param query Search query
@@ -215,20 +226,6 @@ class DonorService {
     });
   }
 
-  /**
-   * Get similar donation requests to a specific request
-   * @param requestId ID of the reference donation request
-   * @param limit Number of similar requests to return (default: 3)
-   * @returns API response with similar donation requests
-   */
-  async getSimilarDonationRequests(
-    requestId: number,
-    limit: number = 3
-  ): Promise<ApiResponse<DonationRequest[]>> {
-    return this.apiClient.get(`/donation-requests/${requestId}/similar`, {
-      params: { limit },
-    });
-  }
 }
 
 export default new DonorService();
@@ -241,5 +238,6 @@ export type {
   DonationStats,
   PaymentMethod,
   PaymentMethodPayload,
-  DonationFilterParams 
+  DonationFilterParams,
+  DonationByRequestId 
 };
