@@ -62,19 +62,19 @@ export default function SponsorFormModal({
       setIsSubmitting(true);
       setError(null);
       
-      // Prepare payload for API
+      // Prepare payload for API - include only the fields expected by the backend
       const payload = {
-        donationRequestId: data.id,
-        donationStatus: true,
+        donationRequestId: data.id, // Ensure it's a number
         donationAmount: formData.donationAmount,
-        donationMessage: formData.donationMessage,
-        donationMessageVisibility: formData.donationMessageVisibility
+        donationMessage: formData.donationMessage || null, // Send null if empty
+        donationMessageVisibility: formData.donationMessageVisibility,
+        donationStatus: true // This indicates payment was successful
       };
       
+      console.log('Submitting donation with payload:', payload); // Add logging for debugging
+      
       // Call the donation API
-      const response = await DonorService.makeDonation({
-        ...payload
-      });
+      const response = await DonorService.makeDonation(payload);
       
       if (response.success) {
         toast({
