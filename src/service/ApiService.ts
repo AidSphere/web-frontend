@@ -53,11 +53,11 @@ class ApiService {
     // Request interceptor
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        // // Add auth token if available
-        // const token = localStorage.getItem('token');
-        // if (token) {
-        //   config.headers.Authorization = `Bearer ${token}`;
-        // }
+        // Add auth token if available
+        const token = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJET05PUiJdLCJ1c2VybmFtZSI6Imthd2Vlc2hhQHkuY29tIiwic3ViIjoia2F3ZWVzaGFAeS5jb20iLCJpYXQiOjE3NDYyOTk5ODIsImV4cCI6MTc0NjMwMzU4Mn0.83NMo-3wfVi9ORQLO67ljk4nadjt1wobpNhqIOgqOQ0";
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
       },
       (error) => {
@@ -85,6 +85,8 @@ class ApiService {
       message: 'An error occurred with the request',
       data: error.response?.data || null
     };
+
+    
     
     // Extract the message from the response if available
     if (error.response?.data && typeof error.response.data === 'object' && 'message' in error.response.data) {

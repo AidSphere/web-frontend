@@ -1,163 +1,68 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DonorFeedCard } from '../_component';
-import { Button } from '@heroui/react';
-
-// Define the donor request type
-interface DonationRequest {
-  id: number;
-  name: string;
-  email: string;
-  company: string;
-  price: number;
-  remaining: number;
-  progress: number;
-  note: string;
-  category: string;
-  createdAt: string;
-  image: string;
-}
-
-// Sample data with additional fields
-const donationRequests: DonationRequest[] = [
-  {
-    id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    company: 'ABC Corp',
-    price: 500,
-    remaining: 125,
-    progress: 75,
-    note: 'Thank you for your generous donation! This will help me get the medication I need for my treatment.',
-    category: 'Medication',
-    createdAt: '2023-06-10',
-    image:
-      'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80',
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    company: 'XYZ Ltd',
-    price: 300,
-    remaining: 150,
-    progress: 50,
-    note: 'Every contribution makes a difference! I need this support for my ongoing physical therapy sessions.',
-    category: 'Treatment',
-    createdAt: '2023-06-12',
-    image:
-      'https://images.unsplash.com/photo-1579154204601-01588f351e67?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80',
-  },
-  {
-    id: 3,
-    name: 'Robert Johnson',
-    email: 'robert@example.com',
-    company: 'Global Tech',
-    price: 1000,
-    remaining: 100,
-    progress: 90,
-    note: 'Your support is greatly appreciated! This will help cover the costs of my upcoming surgery.',
-    category: 'Surgery',
-    createdAt: '2023-06-08',
-    image:
-      'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80',
-  },
-  {
-    id: 4,
-    name: 'Emily Wilson',
-    email: 'emily@example.com',
-    company: 'Health First',
-    price: 750,
-    remaining: 300,
-    progress: 60,
-    note: 'Thank you for considering my request. This donation will help me afford my monthly medication.',
-    category: 'Medication',
-    createdAt: '2023-06-15',
-    image:
-      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80',
-  },
-  {
-    id: 5,
-    name: 'Michael Brown',
-    email: 'michael@example.com',
-    company: 'Care Solutions',
-    price: 450,
-    remaining: 200,
-    progress: 55,
-    note: "I'm grateful for any help you can provide. This will support my rehabilitation program.",
-    category: 'Rehabilitation',
-    createdAt: '2023-06-18',
-    image:
-      'https://images.unsplash.com/photo-1631815588090-d4bfec5b7e7a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80',
-  },
-];
+import { Button, Input, Spinner } from '@heroui/react';
+import DonorService, { DonationRequest } from '@/service/DonorService';
+import { Search, AlertCircle, RefreshCw } from 'lucide-react';
 
 const Home = () => {
+  const [donationRequests, setDonationRequests] = useState<DonationRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<string>('progress');
-  const [activeTab, setActiveTab] = useState<string>('all');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Filter and sort donation requests
-  const filteredRequests = donationRequests
-    .filter((request) => {
-      // Apply search filter
-      const matchesSearch =
-        request.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        request.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        request.note.toLowerCase().includes(searchQuery.toLowerCase());
-
-      // Apply category filter
-      const matchesCategory =
-        categoryFilter === 'all' || request.category === categoryFilter;
-
-      // Apply urgency filter
-      const matchesUrgency =
-        urgencyFilter === 'all' || request.urgency === urgencyFilter;
-
-      // Apply tab filter
-      const matchesTab =
-        activeTab === 'all' ||
-        (activeTab === 'urgent' && request.urgency === 'high') ||
-        (activeTab === 'almost-funded' && request.progress >= 75) ||
-        (activeTab === 'recent' &&
-          new Date(request.createdAt) >=
-            new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
-
-      return matchesSearch && matchesCategory && matchesUrgency && matchesTab;
-    })
-    .sort((a, b) => {
-      // Sort by selected criteria
-      if (sortBy === 'progress') {
-        return b.progress - a.progress;
-      } else if (sortBy === 'urgency') {
-        const urgencyValue = { high: 3, medium: 2, low: 1 };
-        return urgencyValue[b.urgency] - urgencyValue[a.urgency];
-      } else if (sortBy === 'recent') {
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-      } else if (sortBy === 'amount') {
-        return b.remaining - a.remaining;
+  const fetchDonationRequests = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await DonorService.getPatientAcceptedDonationRequests();
+      
+      console.log('API Response:', response); // Log the response for debugging
+      
+      // Check for both standard and alternative response formats
+      if ((response.status === 0 || response.success === true) && Array.isArray(response.data)) {
+        // Success - we have data as an array
+        setDonationRequests(response.data);
+      } else if (response.data && Array.isArray(response.data)) {
+        // Alternative success format - data is directly available
+        setDonationRequests(response.data);
+      } else if (response && Array.isArray(response)) {
+        // Direct array response
+        setDonationRequests(response);
+      } else {
+        // Message shown in the UI should match the error message in the screenshot
+        setError('Failed to fetch donation requests');
+        console.error('Unexpected API response format:', response);
       }
-      return 0;
-    });
+    } catch (err) {
+      console.error('Error fetching donation requests:', err);
+      setError('An error occurred while fetching donation requests');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // Get unique categories for filter dropdown
-  const categories = Array.from(
-    new Set(donationRequests.map((request) => request.category))
-  );
+  useEffect(() => {
+    fetchDonationRequests();
+  }, []);
+
+  // Filter donation requests based on search query
+  const filteredRequests = donationRequests.filter((request) => {
+    const matchesSearch =
+      searchQuery === '' ||
+      request.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      request.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      request.hospitalName?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesSearch;
+  });
 
   // Calculate stats
   const totalRequests = donationRequests.length;
   const totalNeeded = donationRequests.reduce(
-    (sum, request) => sum + request.remaining,
+    (sum, request) => sum + (request.remainingPrice || 0),
     0
   );
-  const urgentRequests = donationRequests.filter(
-    (request) => request.urgency === 'high'
-  ).length;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -175,37 +80,78 @@ const Home = () => {
         </p>
       </div>
 
-      {/* Results count */}
-      <div className='mb-4 text-sm text-gray-500'>
-        Showing {filteredRequests.length} of {donationRequests.length} donation
-        requests
+      {/* Search */}
+      <div className='mb-6'>
+        <Input
+          placeholder="Search by title, description, or hospital..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          startContent={<Search size={18} className="text-gray-400" />}
+          className="max-w-md mx-auto"
+        />
       </div>
 
-      {/* Donation Request Cards */}
-      <div className='mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2'>
-        {filteredRequests.length > 0 ? (
-          filteredRequests.map((request) => (
-            <DonorFeedCard key={request.id} {...request} />
-          ))
-        ) : (
-          <div className='col-span-2 py-12 text-center'>
-            <p className='mb-2 text-gray-500'>
-              No donation requests found matching your filters.
-            </p>
-            <Button
-              color='primary'
-              onClick={() => {
-                setSearchQuery('');
-                setCategoryFilter('all');
-                setUrgencyFilter('all');
-                setActiveTab('all');
-              }}
-            >
-              Clear Filters
-            </Button>
+      {isLoading ? (
+        <div className="flex justify-center items-center py-20">
+          <Spinner size="lg" color="primary" />
+        </div>
+      ) : error ? (
+        <div className="text-center py-10">
+          <div className="inline-flex items-center justify-center p-4 mb-4 text-red-500 bg-red-100 rounded-full">
+            <AlertCircle size={24} />
           </div>
-        )}
-      </div>
+          <p className="text-danger mb-4">{error}</p>
+          <Button 
+            color="primary"
+            startContent={<RefreshCw size={16} />}
+            onClick={fetchDonationRequests}
+          >
+            Try Again
+          </Button>
+        </div>
+      ) : donationRequests.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-gray-500 mb-4">No donation requests are available at the moment.</p>
+          <Button 
+            color="primary"
+            onClick={fetchDonationRequests}
+          >
+            Refresh
+          </Button>
+        </div>
+      ) : (
+        <>
+          {/* Results count */}
+          <div className='mb-4 text-sm text-gray-500'>
+            Showing {filteredRequests.length} of {donationRequests.length} donation requests
+          </div>
+
+          {/* Donation Request Cards */}
+          <div className='mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2'>
+            {filteredRequests.length > 0 ? (
+              filteredRequests.map((request) => (
+                <DonorFeedCard 
+                  key={request.requestId} 
+                  donation={request} 
+                  onDonationSuccess={fetchDonationRequests}
+                />
+              ))
+            ) : (
+              <div className='col-span-2 py-12 text-center'>
+                <p className='mb-2 text-gray-500'>
+                  No donation requests found matching your search.
+                </p>
+                <Button
+                  color='primary'
+                  onClick={() => setSearchQuery('')}
+                >
+                  Clear Search
+                </Button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };
