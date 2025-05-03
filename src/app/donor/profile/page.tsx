@@ -451,17 +451,29 @@ const Profile = () => {
       setLoading(true);
 
       try {
-        // Replace direct API call with ApiClient call
-        const response = await apiClient.put('/donor', formData);
+        // Use DonorService instead of direct ApiClient call
+        const donorService = await import('@/service/DonorService').then(mod => mod.default);
+        const response = await donorService.updateDonorProfile(formData);
         
         if (response.success) {
           setSaveSuccess(true);
           setIsEditing(false);
         } else {
-          console.error('Error updating profile:', response.message);
+          // Handle specific validation errors from backend
+          if (response.message) {
+            if (response.message.includes('NIC')) {
+              setErrors({ nic: response.message });
+            } else if (response.message.includes('date')) {
+              setErrors({ dob: response.message });
+            } else {
+              // Generic error
+              setErrors({ form: response.message });
+            }
+          }
         }
       } catch (error) {
         console.error('Error updating profile:', error);
+        setErrors({ form: 'Failed to update profile. Please try again later.' });
       } finally {
         setLoading(false);
       }
@@ -639,6 +651,12 @@ const Profile = () => {
                   <div className='flex items-center text-gray-600'>
                     <Calendar size={18} className='mr-2' />
                     <span>{formatDate(formData.dob)}</span>
+                  </div>
+                )}
+                {formData.description && (
+                  <div className='flex items-start text-gray-600'>
+                    <FileText size={18} className='mr-2 mt-1 flex-shrink-0' />
+                    <span className="line-clamp-3">{formData.description}</span>
                   </div>
                 )}
               </div>
@@ -821,6 +839,24 @@ const Profile = () => {
                     disabled={!isEditing || loading}
                     isInvalid={!!errors.address}
                     errorMessage={errors.address}
+                    className='w-full'
+                  />
+                </div>
+
+                <div className='space-y-2 md:col-span-2'>
+                  <label className='flex items-center text-sm font-medium'>
+                    <FileText size={16} className='mr-1 text-gray-500' />
+                    Description
+                  </label>
+                  <Input
+                    name='description'
+                    value={formData.description || ''}
+                    onChange={handleInputChange}
+                    variant='bordered'
+                    placeholder='Enter a brief description about yourself'
+                    disabled={!isEditing || loading}
+                    isInvalid={!!errors.description}
+                    errorMessage={errors.description}
                     className='w-full'
                   />
                 </div>
