@@ -32,6 +32,8 @@ import {
 } from 'lucide-react';
 import SponsorFormModal from '../home/_components/sponsorformModel';
 import type { DonationRequest, PrescribedMedicine } from '@/service/DonorService';
+import { formatDistanceToNow, format, isPast, differenceInDays } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface DonorFeedCardProps {
   donation: DonationRequest;
@@ -44,36 +46,56 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
 }) => {
   const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState(false);
   
+  // Handle null or undefined values with default values
   const {
     requestId,
     title,
     description,
     hospitalName,
-    defaultPrice,
-    remainingPrice,
+    defaultPrice = 0,
+    remainingPrice = 0,
     createdAt,
     expectedDate,
-    images,
-    documents,
-    prescribedMedicines,
+    images = [],
+    documents = [],
+    prescribedMedicines = [],
     prescriptionUrl
-  } = donation;
+  } = donation || {};
 
-  // Format the date
-  const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  // Safe date parsing with fallbacks
+  const createdDate = createdAt ? new Date(createdAt) : new Date();
+  const expectedDay = expectedDate ? new Date(expectedDate) : new Date();
+  
+  // Format the created date (with fallback)
+  const formattedCreatedDate = createdAt 
+    ? new Intl.DateTimeFormat('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      }).format(createdDate)
+    : 'Recently';
+
+  // Format expected date for display
+  const expectedDateDisplay = expectedDate 
+    ? new Intl.DateTimeFormat('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      }).format(expectedDay)
+    : 'Not specified';
+
+  // Calculate days remaining (safely)
+  const daysUntilExpected = Math.max(0, Math.floor(
+    (expectedDay.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+  ));
 
   // Calculate progress
-  const amountRaised = defaultPrice - remainingPrice;
-  const progress = Math.round((amountRaised / defaultPrice) * 100);
+  const amountRaised = Math.max(0, defaultPrice - remainingPrice);
+  const progress = defaultPrice > 0 
+    ? Math.round((amountRaised / defaultPrice) * 100) 
+    : 0;
 
   // Determine urgency based on expected date
-  const daysUntilExpected = Math.ceil(
-    (new Date(expectedDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24)
-  );
   const urgency = daysUntilExpected <= 7 ? 'high' : daysUntilExpected <= 14 ? 'medium' : 'low';
 
   // Determine urgency color and label
@@ -105,7 +127,7 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
 
   return (
     <div>
-      <Card className='overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-lg'>
+      <Card className='overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-lg hover:translate-y-[-3px]'>
         <CardBody className='p-0'>
           <div className='relative'>
             {/* Urgency Tags */}
@@ -115,20 +137,38 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
                 variant='solid'
                 size='sm'
                 startContent={<AlertTriangle size={12} />}
+                className={cn(
+                  urgency === 'high' ? 'animate-pulse' : '',
+                  'shadow-sm'
+                )}
               >
                 {urgencyLabel}
               </Chip>
+              
+              {isPast(expectedDay) && (
+                <Chip
+                  color="danger"
+                  variant="solid"
+                  size="sm"
+                  className="shadow-sm"
+                >
+                  Overdue
+                </Chip>
+              )}
             </div>
 
             {/* Date Tag */}
             <div className='absolute right-4 top-4 z-10'>
-              <Chip
-                variant='flat'
-                size='sm'
-                startContent={<Calendar size={12} />}
-              >
-                {formattedDate}
-              </Chip>
+              <Tooltip content={`Created: ${format(createdDate, 'PPP')}`}>
+                <Chip
+                  variant='flat'
+                  size='sm'
+                  startContent={<Calendar size={12} />}
+                  className="bg-white/70 backdrop-blur-sm"
+                >
+                  {formattedCreatedDate}
+                </Chip>
+              </Tooltip>
             </div>
 
             {/* Main Image with Overlay Gradient */}
@@ -141,19 +181,25 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
               />
               <div className='absolute inset-0 bg-gradient-to-t from-black/70 to-transparent'></div>
             </div>
-
-            {/* Progress Bar Overlay - Now removed from here */}
           </div>
 
-          {/* Dedicated Progress Section - New */}
+          {/* Dedicated Progress Section */}
           <div className='bg-gray-50 px-5 py-3'>
             <div className='flex items-center justify-between mb-1'>
-              <p className='text-sm font-medium text-gray-700'>Funding Progress</p>
+              <div className="flex items-center gap-1">
+                <p className='text-sm font-medium text-gray-700'>Funding Progress</p>
+                {progress >= 70 && (
+                  <Chip size="sm" color="success" variant="flat" className="h-5">Almost there!</Chip>
+                )}
+              </div>
               <p className='text-sm font-medium text-green-600'>{progress}%</p>
             </div>
             <div className='h-3 w-full overflow-hidden rounded-full bg-gray-200'>
               <div 
-                className='h-full rounded-full bg-green-500 transition-all duration-500 ease-in-out' 
+                className={cn(
+                  'h-full rounded-full transition-all duration-1000 ease-in-out',
+                  progress === 100 ? 'bg-success-500' : 'bg-primary'
+                )} 
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -166,11 +212,24 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
           <div className='p-5'>
             {/* Request Info */}
             <div className='mb-4'>
-              <h2 className='mb-1 text-xl font-semibold'>{title}</h2>
+              <h2 className='mb-1 text-xl font-semibold line-clamp-2'>{title}</h2>
               <div className='flex flex-wrap gap-y-1 text-sm text-gray-500'>
                 <div className='flex items-center'>
                   <Building size={14} className='mr-1' />
                   <span>{hospitalName}</span>
+                </div>
+                
+                <div className="flex items-center ml-4">
+                  <Clock size={14} className="mr-1" />
+                  <Tooltip content={`Needed by: ${expectedDateDisplay}`}>
+                    <span className={cn(
+                      daysUntilExpected <= 7 ? 'text-red-600 font-medium' : ''
+                    )}>
+                      {daysUntilExpected <= 0 
+                        ? 'Needed immediately' 
+                        : `${daysUntilExpected} days left`}
+                    </span>
+                  </Tooltip>
                 </div>
               </div>
             </div>
@@ -211,12 +270,21 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
                 </h3>
                 <div className='flex flex-wrap gap-2'>
                   {prescribedMedicines.slice(0, 3).map((med, index) => (
-                    <Chip key={index} variant='flat' size='sm' className='bg-gray-100'>
+                    <Chip 
+                      key={index} 
+                      variant='flat' 
+                      size='sm' 
+                      className='bg-blue-50 text-blue-700 border border-blue-100'
+                    >
                       {med.medicine} ({med.amount})
                     </Chip>
                   ))}
                   {prescribedMedicines.length > 3 && (
-                    <Chip variant='flat' size='sm' className='bg-gray-100'>
+                    <Chip 
+                      variant='flat' 
+                      size='sm'
+                      className='bg-gray-100 text-gray-700'
+                    >
                       +{prescribedMedicines.length - 3} more
                     </Chip>
                   )}
@@ -234,7 +302,7 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
                   isIconOnly
                   variant='light'
                   size='sm'
-                  className='text-gray-500 hover:text-primary'
+                  className='text-gray-500 hover:text-primary hover:bg-gray-100'
                   onClick={() => setIsDocumentsModalOpen(true)}
                 >
                   <FileText size={16} />
@@ -257,7 +325,11 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
             <Button
               color='primary'
               startContent={<Heart size={16} />}
-              className='font-medium'
+              className={cn(
+                'font-medium',
+                remainingPrice === 0 ? 'opacity-50' : '',
+                progress === 100 ? 'bg-success-500 border-success-500' : ''
+              )}
               disabled={remainingPrice === 0}
             >
               <SponsorFormModal 
@@ -295,28 +367,28 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
                 The following documents have been uploaded to support this donation request:
               </p>
               
-{allDocuments.map((doc, index) => (
-  <div key={index} className="p-3 rounded-lg bg-gray-100 flex items-center justify-between">
-    <div>
-      <p className="text-sm font-medium text-gray-700">{doc.type}</p>
-      <p className="text-xs text-gray-500">{getFileName(doc.url)}</p>
-    </div>
-    <Button
-      variant="light"
-      size="sm"
-      startContent={<ExternalLink size={16} />}
-      onClickCapture={() => openDocument(doc.url)}
-    >
-      Open
-    </Button>
-  </div>
-))}
-
+              {allDocuments.map((doc, index) => (
+                <div key={index} className="p-3 rounded-lg bg-gray-100 flex items-center justify-between transition-all hover:bg-gray-200">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">{doc.type}</p>
+                    <p className="text-xs text-gray-500">{getFileName(doc.url)}</p>
+                  </div>
+                  <Button
+                    variant="flat"
+                    color="primary"
+                    size="sm"
+                    startContent={<ExternalLink size={16} />}
+                    onClickCapture={() => openDocument(doc.url)}
+                  >
+                    Open
+                  </Button>
+                </div>
+              ))}
             </div>
           </ModalBody>
           <ModalFooter>
             <p className="text-xs text-gray-500 w-full text-center">
-              Documents are PDF files that contain medical reports and other relevant information.
+              Documents are medical files that contain important information about this donation request.
             </p>
           </ModalFooter>
         </ModalContent>
@@ -324,5 +396,10 @@ const DonorFeedCard: React.FC<DonorFeedCardProps> = ({
     </div>
   );
 };
+
+// Helper function to check if a date is recent (within last 7 days)
+function isRecent(date: Date): boolean {
+  return differenceInDays(new Date(), date) <= 7;
+}
 
 export default DonorFeedCard;
