@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -22,27 +22,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-type ProfileData = {
-  patientId: string;
-  firstName: string;
-  lastName: string;
-  dateOfBirth: string;
-  gender: string;
-  phoneNumber: string;
-  email: string;
-  permanentAddress: string;
-  currentAddress: string;
-  profileImageUrl: string;
-  cancerType: string;
-  cancerStage: string;
-};
+import { useToast } from '@/hooks/use-toast';
+import { uploadImage } from '@/lib/utils/uploadUtils';
+import { PatientProfileDto } from '@/types/patient';
+import Image from 'next/image';
 
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  profileData: ProfileData;
-  onSave: (updatedData: ProfileData) => void;
+  profileData: PatientProfileDto;
+  onSave: (updatedData: PatientProfileDto) => void;
 }
 
 export function EditProfileModal({
@@ -51,7 +40,14 @@ export function EditProfileModal({
   profileData,
   onSave,
 }: EditProfileModalProps) {
-  const [formData, setFormData] = useState<ProfileData>(profileData);
+  const [formData, setFormData] = useState<PatientProfileDto>(profileData);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    profileData.profileImageUrl || null
+  );
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -70,9 +66,74 @@ export function EditProfileModal({
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Invalid file',
+          description: 'Please select an image file',
+          variant: 'destructive',
+        });
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: 'File too large',
+          description: 'Profile image must be less than 5MB',
+          variant: 'destructive',
+        });
+        return;
+      }
+      setProfileImage(file);
+      // Create a preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+
+    try {
+      setIsUploading(true);
+      // If a new profile image was selected, upload it
+      if (profileImage) {
+        const imageUrl = await uploadImage(profileImage, 'profile-images');
+        // Update the form data with the new image URL
+        setFormData((prev) => ({
+          ...prev,
+          profileImageUrl: imageUrl,
+        }));
+        // Call onSave with updated data including new image URL
+        onSave({
+          ...formData,
+          profileImageUrl: imageUrl,
+        });
+      } else {
+        // No new image, just save the existing form data
+        onSave(formData);
+      }
+
+      toast({
+        title: 'Profile updated',
+        description: 'Your profile has been updated successfully',
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update profile. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -86,6 +147,34 @@ export function EditProfileModal({
             </DialogDescription>
           </DialogHeader>
           <div className='grid gap-4 py-4'>
+            {/* Profile Image Section */}
+            <div className='flex flex-col items-center space-y-4'>
+              {imagePreview && (
+                <div className='relative h-24 w-24 overflow-hidden rounded-full'>
+                  <Image
+                    src={imagePreview}
+                    alt='Profile'
+                    fill
+                    style={{ objectFit: 'cover' }}
+                  />
+                </div>
+              )}
+
+              <div className='space-y-2'>
+                <Label htmlFor='profileImage'>Profile Picture</Label>
+                <Input
+                  id='profileImage'
+                  type='file'
+                  accept='image/*'
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                />
+                <p className='text-muted-foreground text-xs'>
+                  Upload a profile picture (JPEG, PNG, WebP). Max 5MB.
+                </p>
+              </div>
+            </div>
+
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
               {/* Patient ID (read-only) */}
               <div className='space-y-2'>
@@ -96,17 +185,6 @@ export function EditProfileModal({
                   value={formData.patientId}
                   disabled
                   className='bg-muted'
-                />
-              </div>
-
-              {/* Profile Image URL */}
-              <div className='space-y-2'>
-                <Label htmlFor='profileImageUrl'>Profile Image URL</Label>
-                <Input
-                  id='profileImageUrl'
-                  name='profileImageUrl'
-                  value={formData.profileImageUrl}
-                  onChange={handleChange}
                 />
               </div>
 
@@ -154,9 +232,9 @@ export function EditProfileModal({
                     <SelectValue placeholder='Select gender' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='Male'>Male</SelectItem>
-                    <SelectItem value='Female'>Female</SelectItem>
-                    <SelectItem value='Other'>Other</SelectItem>
+                    <SelectItem value='MALE'>Male</SelectItem>
+                    <SelectItem value='FEMALE'>Female</SelectItem>
+                    <SelectItem value='OTHER'>Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -184,37 +262,35 @@ export function EditProfileModal({
                 />
               </div>
 
-              {/* Cancer Type */}
-              <div className='space-y-2'>
-                <Label htmlFor='cancerType'>Cancer Type</Label>
-                <Input
-                  id='cancerType'
-                  name='cancerType'
-                  value={formData.cancerType}
-                  onChange={handleChange}
-                />
-              </div>
+              {/* Cancer Type from medical record if available */}
+              {formData.medicalRecord && (
+                <>
+                  <div className='space-y-2'>
+                    <Label htmlFor='cancerType'>Cancer Type</Label>
+                    <Input
+                      id='cancerType'
+                      name='cancerType'
+                      value={
+                        formData.medicalRecord?.cancerType || 'Lung Cancer'
+                      }
+                      disabled
+                      className='bg-muted'
+                    />
+                  </div>
 
-              {/* Cancer Stage */}
-              <div className='space-y-2'>
-                <Label htmlFor='cancerStage'>Cancer Stage</Label>
-                <Select
-                  value={formData.cancerStage}
-                  onValueChange={(value) =>
-                    handleSelectChange('cancerStage', value)
-                  }
-                >
-                  <SelectTrigger id='cancerStage'>
-                    <SelectValue placeholder='Select stage' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='Stage I'>Stage I</SelectItem>
-                    <SelectItem value='Stage II'>Stage II</SelectItem>
-                    <SelectItem value='Stage III'>Stage III</SelectItem>
-                    <SelectItem value='Stage IV'>Stage IV</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  {/* Cancer Stage from medical record if available */}
+                  <div className='space-y-2'>
+                    <Label htmlFor='cancerStage'>Cancer Stage</Label>
+                    <Input
+                      id='cancerStage'
+                      name='cancerStage'
+                      value={formData.medicalRecord?.cancerStage || 'Stage 2'}
+                      disabled
+                      className='bg-muted'
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Permanent Address */}
@@ -245,8 +321,8 @@ export function EditProfileModal({
             <Button type='button' variant='outline' onClick={onClose}>
               Cancel
             </Button>
-            <Button type='submit' className='bg-primary'>
-              Save Changes
+            <Button type='submit' className='bg-primary' disabled={isUploading}>
+              {isUploading ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </form>
