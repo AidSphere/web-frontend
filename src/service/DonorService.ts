@@ -55,6 +55,8 @@ interface DonorProfile {
   createdAt: string;
   totalDonations: number;
   activeDonations: number;
+  nic?: string;
+  dob?: string;
 }
 
 interface DonationStats {
@@ -204,7 +206,34 @@ class DonorService {
    * @returns API response with updated donor profile
    */
   async updateDonorProfile(profileData: Partial<DonorProfile>): Promise<ApiResponse<DonorProfile>> {
-    return this.apiClient.put(`${this.API_PATH}/profile`, profileData);
+    // Validate NIC format
+    if (profileData.nic) {
+      const oldNicPattern = /^\d{9}[VvXx]$/;
+      const newNicPattern = /^\d{12}$/;
+      if (!oldNicPattern.test(profileData.nic) && !newNicPattern.test(profileData.nic)) {
+        return {
+          success: false,
+          message: 'Invalid NIC format. Use 9 digits + V/X (old) or 12 digits (new)',
+          status: 400
+        };
+      }
+    }
+
+    // Validate dates are not in the future
+    if (profileData.dob) {
+      const selectedDate = new Date(profileData.dob);
+      const today = new Date();
+      if (selectedDate > today) {
+        return {
+          success: false,
+          message: 'Date of birth cannot be in the future',
+          status: 400
+        };
+      }
+    }
+
+    // Use the endpoint mentioned in the prompt
+    return this.apiClient.put(`/donor`, profileData);
   }
 
   /**
