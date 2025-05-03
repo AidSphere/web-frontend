@@ -145,12 +145,42 @@ class ApiClient {
         return error as ApiResponse<T>;
       }
       
-      // Otherwise handle generic errors
-      console.error(`Unexpected error in ${endpoint} call:`, error);
+      // Extract error message from error response
+      let errorMessage = 'An unexpected error occurred';
+      let statusCode = 500;
+      
+      // Check if it's an Axios error with a response
+      if (error.response) {
+        statusCode = error.response.status;
+        
+        // Try to extract error message from various response formats
+        if (error.response.data) {
+          if (typeof error.response.data === 'string') {
+            errorMessage = error.response.data;
+          } else if (error.response.data.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.response.data.error) {
+            errorMessage = error.response.data.error;
+          } else if (error.response.data.errors && Array.isArray(error.response.data.errors)) {
+            errorMessage = error.response.data.errors.join(', ');
+          }
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // Log the error with details
+      console.error(`API error in ${endpoint} call:`, {
+        status: statusCode,
+        message: errorMessage,
+        error: error
+      });
+      
+      // Return standardized error response
       return {
         success: false,
-        status: 500,
-        message: error.message || 'An unexpected error occurred'
+        status: statusCode,
+        message: errorMessage
       };
     }
   }
