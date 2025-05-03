@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 // Import HeroUIProvider
 import { HeroUIProvider } from '@heroui/react';
 import { ToastProvider } from '@heroui/toast';
+import { AuthProvider } from '@/components/auth/AuthProvider';
 
 // Configure fonts
 const geistSans = Geist({
@@ -30,6 +31,7 @@ export const metadata: Metadata = {
  * - Font configuration with Geist Sans and Geist Mono
  * - Theme management via ThemeProvider
  * - HeroUI component system via HeroUIProvider
+ * - Authentication via AuthProvider
  *
  * The theme configuration supports:
  * - Primary colors (pink/magenta palette with #fa3a91 as default)
@@ -55,7 +57,7 @@ export default function RootLayout({
         >
           <HeroUIProvider>
             <ToastProvider />
-            {children}
+            <AuthProvider>{children}</AuthProvider>
           </HeroUIProvider>
         </ThemeProvider>
       </body>
