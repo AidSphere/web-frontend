@@ -15,8 +15,9 @@ import { BasicInfoSchema } from '@/app/patient/_types/donation-request-types';
 import BasicInfoInput from '@/app/patient/components/BasicInfoInput';
 import { Form } from '@/components/ui/form';
 import Link from 'next/link';
-import { uploadImageToCloudinary } from '@/app/actions/uploadActions';
-import { uploadImages } from '@/lib/utils/uploadUtils';
+import { uploadImages, uploadPdfs } from '@/lib/utils/uploadUtils';
+import apiClient from '@/lib/apiClient';
+import { createDonationRequest } from '@/service/api/patient/donationRequestService';
 
 // Create a schema for the complete form
 const DonationRequestSchema = BasicInfoSchema.extend({
@@ -38,7 +39,7 @@ export default function DonationRequestForm() {
       requestName: '',
       description: '',
       expectedDate: new Date(),
-      items: [{ medicine: '', amount: '' }],
+      items: [{ medicine: '', amount: '', unit: '' }],
       imageFiles: [],
       pdfFiles: [],
       notes: '',
@@ -50,52 +51,41 @@ export default function DonationRequestForm() {
     setIsSubmitting(true);
     try {
       let uploadedImageUrls: string[] = [];
-      // 1. Upload Images to Cloudinary if they exist
+      let uploadedPdfUrls: string[] = [];
+
+      // Upload Images to Cloudinary if they exist
       if (data.imageFiles && data.imageFiles.length > 0) {
-        // Pass the files and the desired folder name
         uploadedImageUrls = await uploadImages(
           data.imageFiles,
           'donation-images'
         );
       }
 
-      // Create FormData for file uploads
-      const formData = new FormData();
-
-      // Add patient information
-      formData.append('requestName', data.requestName);
-      formData.append('description', data.description);
-      formData.append('expectedDate', data.expectedDate.toISOString());
-
-      // Add prescription items
-      data.items.forEach((item, index) => {
-        formData.append(`items[${index}][medicine]`, item.medicine);
-        formData.append(`items[${index}][amount]`, item.amount);
-      });
-
-      // Add Cloudinary Image URLs
-      uploadedImageUrls.forEach((url, index) => {
-        formData.append(`imageUrls[${index}]`, url); // Send URLs
-      });
-
-      // Add PDFs with titles
+      //  Upload PDFs to Cloudinary if they exist
       if (data.pdfFiles && data.pdfFiles.length > 0) {
-        data.pdfFiles.forEach((item, index) => {
-          formData.append(`files[${index}][file]`, item.file);
-          formData.append(`files[${index}][title]`, item.title);
-        });
+        uploadedPdfUrls = await uploadPdfs(data.pdfFiles, 'donation-pdfs');
       }
 
-      // Add notes
-      if (data.notes) {
-        formData.append('notes', data.notes);
-      }
+      const formData = {
+        title: data.requestName,
+        description: data.description,
+        expectedDate: data.expectedDate.toISOString().split('T')[0],
+        prescribedMedicines: data.items.map((item) => ({
+          medicine: item.medicine,
+          amount: item.amount,
+          unit: item.unit,
+        })),
+        images: uploadedImageUrls,
+        documents: uploadedPdfUrls,
+        notes: data.notes || '',
+        patientId: '4',
+      };
 
-      console.log('Data prepared for backend:', formData);
-      // const response = await fetch('/api/medical-records', {
-      //   method: 'POST',
-      //   body: formData,
-      // })
+      const response = await createDonationRequest(formData);
+
+      if (response.status != 201) {
+        throw new Error('Failed to submit medical record');
+      }
 
       toast({
         title: 'Medical record submitted',
@@ -105,7 +95,7 @@ export default function DonationRequestForm() {
       console.error('Error submitting form:', error);
       toast({
         title: 'Error',
-        description: 'Failed to submit medical record. Please try again.',
+        description: 'Failed to submit Donation request. Please try again.',
         variant: 'destructive',
       });
     } finally {

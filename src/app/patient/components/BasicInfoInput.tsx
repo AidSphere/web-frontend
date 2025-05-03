@@ -11,18 +11,18 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { CalendarIcon, Plus, Trash2 } from 'lucide-react';
-import type { DonationRequestFormValues } from '@/app/patient/_types/donation-request-types';
+import type { BasicInfoFormValues } from '@/app/patient/_types/donation-request-types';
 import { Calendar } from '@/components/ui/calendar';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { Textarea } from '@/components/ui/textarea';
 
 interface BasicInfoInputProps {
-  control: Control<DonationRequestFormValues>;
+  control: Control<BasicInfoFormValues>;
 }
 
 export default function BasicInfoInput({ control }: BasicInfoInputProps) {
@@ -94,19 +94,25 @@ export default function BasicInfoInput({ control }: BasicInfoInputProps) {
             )}
           />
 
-          {/* <FormField
+          <FormField
             control={control}
-            name='prescriptionFile'
+            name='prescriptionUrl'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Prescription File</FormLabel>
                 <FormControl>
-                  <Input type='file' {...field} />
+                  <Input
+                    type='file'
+                    onChange={(e) => field.onChange(e.target.files?.[0])}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
-          /> */}
+          />
 
           <FormField
             control={control}
@@ -136,7 +142,7 @@ export default function BasicInfoInput({ control }: BasicInfoInputProps) {
             type='button'
             variant='outline'
             size='sm'
-            onClick={() => append({ medicine: '', amount: '' })}
+            onClick={() => append({ medicine: '', amount: '', unit: '' })}
           >
             <Plus className='mr-2 h-4 w-4' />
             Add Medicine
@@ -149,7 +155,7 @@ export default function BasicInfoInput({ control }: BasicInfoInputProps) {
             <Button
               type='button'
               variant='link'
-              onClick={() => append({ medicine: '', amount: '' })}
+              onClick={() => append({ medicine: '', amount: '', unit: '' })}
             >
               Add your first medicine
             </Button>
@@ -175,30 +181,46 @@ export default function BasicInfoInput({ control }: BasicInfoInputProps) {
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    control={control}
-                    name={`items.${index}.amount`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className='text-xs'>Dosage/Amount</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder='E.g., 10mg twice daily'
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className='grid flex-1 grid-cols-1 gap-3 md:grid-cols-2'>
+                    <FormField
+                      control={control}
+                      name={`items.${index}.amount`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className='text-xs'>
+                            Dosage/Amount
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder='E.g., 10' {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name={`items.${index}.unit`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className='text-xs'>Unit</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder='E.g., mg, ml, tablets..'
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
 
                 <Button
                   type='button'
                   variant='ghost'
                   size='icon'
-                  className='mt-6'
+                  className='mt-8'
                   onClick={() => remove(index)}
                   disabled={fields.length === 1}
                 >
