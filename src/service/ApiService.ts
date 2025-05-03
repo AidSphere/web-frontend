@@ -54,7 +54,7 @@ class ApiService {
     this.axiosInstance.interceptors.request.use(
       (config) => {
         // Add auth token if available
-        const token = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJET05PUiJdLCJ1c2VybmFtZSI6ImpvaG4uZG9lQGV4YW1wbGVlZS5jb20iLCJzdWIiOiJqb2huLmRvZUBleGFtcGxlZWUuY29tIiwiaWF0IjoxNzQ2MjEzODc0LCJleHAiOjE3NDYyMTc0NzR9.CLj-xCT5GsYjTPKB0yQ6OJYd5SDw-WRa5BWjIBxDsZ0";
+        const token = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJET05PUiJdLCJ1c2VybmFtZSI6Imthd2Vlc2hhQHkuY29tIiwic3ViIjoia2F3ZWVzaGFAeS5jb20iLCJpYXQiOjE3NDYyNzU1MTQsImV4cCI6MTc0NjI3OTExNH0.cXAyjcq7vGtlqaI27692PaNjUSWtYJolJ5rKIM55i8Y";
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -85,6 +85,8 @@ class ApiService {
       message: 'An error occurred with the request',
       data: error.response?.data || null
     };
+
+    
     
     // Extract the message from the response if available
     if (error.response?.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
