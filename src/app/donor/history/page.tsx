@@ -55,15 +55,42 @@ const DonationHistoryPage = () => {
       // Log the response to debug
       console.log('Donation history response:', response);
       
-      // Check if response is successful - updated condition to match actual API response
-      if (response && response.data) {
+      // Check if response is successful and data is an array
+      if (response && response.data && Array.isArray(response.data)) {
         setDonations(response.data);
+      } else if (response && response.data) {
+        // Handle case where data is not an array
+        console.warn('Donation history data is not an array:', response.data);
+        setDonations([]);
+        setError('Received unexpected data format from server');
       } else {
+        // Handle case where no data is returned
+        setDonations([]);
         setError('Failed to fetch donation history');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching donation history:', err);
-      setError('An error occurred while fetching your donation history');
+      
+      // Handle different error cases
+      if (err.response) {
+        // Server responded with an error status
+        if (err.response.status === 401 || err.response.status === 403) {
+          setError('Your session has expired. Please log in again.');
+        } else if (err.response.status === 500) {
+          setError('The server encountered an error. Please try again later.');
+        } else {
+          setError(`Error (${err.response.status}): ${err.response.data?.message || 'Failed to fetch donation history'}`);
+        }
+      } else if (err.request) {
+        // Request was made but no response was received
+        setError('Could not reach the server. Please check your internet connection.');
+      } else {
+        // Something else caused the error
+        setError('An error occurred while fetching your donation history');
+      }
+      
+      // Always ensure donations is an array
+      setDonations([]);
     } finally {
       setIsLoading(false);
     }
