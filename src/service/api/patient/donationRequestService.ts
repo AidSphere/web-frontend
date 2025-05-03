@@ -24,6 +24,7 @@ export interface DonationRequest {
   status: string;
   createdAt: string;
   expectedDate: string;
+  prescriptionUrl: string;
   images: string[];
   documents: string[];
   prescribedMedicines: Array<{
@@ -46,8 +47,27 @@ export const fetchDonationRequestsByPatient = async (patientId: number) => {
   return response.data;
 };
 
+export const fetchDonationRequestById = async (requestId: number) => {
+  const response = await apiClient.get<ApiResponse<DonationRequest>>(
+    `/donation-requests/${requestId}`
+  );
+  return response.data;
+};
+
 // Add this new function to handle deletion
 export const deleteDonationRequest = async (requestId: number) => {
   const response = await apiClient.delete(`/donation-requests/${requestId}`);
+  return response.data;
+};
+
+// Add update function for donation requests
+export const updateDonationRequest = async (
+  requestId: number,
+  formData: DonationRequestFormData
+) => {
+  const response = await apiClient.put(
+    `/donation-requests/${requestId}`,
+    formData
+  );
   return response.data;
 };

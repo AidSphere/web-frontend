@@ -24,6 +24,7 @@ import {
   fetchDonationRequestsByPatient,
   deleteDonationRequest,
 } from '@/service/api/patient/donationRequestService';
+import { useRouter } from 'next/navigation';
 
 export default function App() {
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -36,6 +37,7 @@ export default function App() {
     number | null
   >(null);
   const rowsPerPage = 4;
+  const router = useRouter();
 
   // Fetch data from backend
   React.useEffect(() => {
@@ -78,7 +80,7 @@ export default function App() {
 
   const handleView = (requestId: number) => {
     console.log('View request:', requestId);
-    // Navigate to edit page or show edit modal
+    router.push(`/patient/donation/edit-request/${requestId}`);
   };
 
   const handleDeleteClick = (requestId: number) => {
