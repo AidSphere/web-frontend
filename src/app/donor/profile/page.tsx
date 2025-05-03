@@ -47,12 +47,35 @@ import { cn } from '@/lib/utils';
 const profileSchema = z.object({
   firstName: z.string().min(1, 'First Name is required'),
   lastName: z.string().min(1, 'Last Name is required'),
-  nic: z.string().min(1, 'NIC Number is required'),
+  nic: z.string().min(1, 'NIC Number is required')
+    .refine(
+      (value) => {
+        // Old NIC format: 9 digits followed by V or X
+        const oldNicPattern = /^\d{9}[VvXx]$/;
+        // New NIC format: 12 digits
+        const newNicPattern = /^\d{12}$/;
+        return oldNicPattern.test(value) || newNicPattern.test(value);
+      },
+      {
+        message: 'Invalid NIC format. Use 9 digits + V/X (old) or 12 digits (new)',
+      }
+    ),
   email: z.string().email('Invalid email address'),
   phone: z
     .string()
     .min(10, 'Phone Number must be at least 10 characters'),
-  dob: z.string().optional(),
+  dob: z.string().optional()
+    .refine(
+      (value) => {
+        if (!value) return true; // Optional field
+        const selectedDate = new Date(value);
+        const today = new Date();
+        return selectedDate <= today;
+      },
+      {
+        message: 'Date of birth cannot be in the future',
+      }
+    ),
   address: z.string().optional(),
   description: z.string().optional(),
 });
