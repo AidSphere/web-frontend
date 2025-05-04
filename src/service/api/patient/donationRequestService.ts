@@ -32,6 +32,12 @@ export interface DonationRequest {
     amount: number;
     unit: string;
   }>;
+  hospitalName?: string;
+  messageToPatient?: string;
+  adminId?: number;
+  adminApprovedAt?: string;
+  defaultPrice?: number;
+  remainingPrice?: number;
 }
 
 export const createDonationRequest = async (
@@ -68,6 +74,27 @@ export const updateDonationRequest = async (
   const response = await apiClient.put(
     `/donation-requests/${requestId}`,
     formData
+  );
+  return response.data;
+};
+
+// Add this new function to fetch donation requests with QUOTATION_ISSUED status
+export const fetchQuotationIssuedRequests = async () => {
+  const response = await apiClient.get<ApiResponse<DonationRequest[]>>(
+    '/donation-requests/quotation-issued'
+  );
+  return response.data;
+};
+
+// Add the updateDonationRequestDefaultPrice function to the existing file
+
+export const updateDonationRequestDefaultPrice = async (
+  requestId: number,
+  defaultPrice: number
+) => {
+  const response = await apiClient.put<ApiResponse<DonationRequest>>(
+    `/donation-requests/${requestId}/default-price`,
+    defaultPrice
   );
   return response.data;
 };
