@@ -19,67 +19,51 @@ import {
 } from '@heroui/react';
 import { PencilLine, Plus, Search, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-
-interface DonationRequest {
-  donationId: string;
-  requestName: string;
-  expectedDate: string;
-  status: string;
-  createdAt: string;
-}
-
-const mockDonationTableData: DonationRequest[] = [
-  {
-    donationId: 'd1a2b3c4',
-    requestName: 'Urgent Chemotherapy',
-    expectedDate: '2025-04-10',
-    status: 'Pending',
-    createdAt: '2025-03-20',
-  },
-  {
-    donationId: 'e5f6g7h8',
-    requestName: 'Cancer Surgery',
-    expectedDate: '2025-05-01',
-    status: 'Pending',
-    createdAt: '2025-03-15',
-  },
-  {
-    donationId: 'i9j0k1l2',
-    requestName: 'Post-Treatment Support',
-    expectedDate: '2025-04-20',
-    status: 'Rejected',
-    createdAt: '2025-03-18',
-  },
-  {
-    donationId: 'm3n4o5p6',
-    requestName: 'Radiation Therapy',
-    expectedDate: '2025-06-05',
-    status: 'Pending',
-    createdAt: '2025-03-25',
-  },
-  {
-    donationId: 'q7r8s9t0',
-    requestName: 'Palliative Care Support',
-    expectedDate: '2025-04-15',
-    status: 'Completed',
-    createdAt: '2025-03-12',
-  },
-];
+import {
+  DonationRequest,
+  fetchDonationRequestsByPatient,
+  deleteDonationRequest,
+} from '@/service/api/patient/donationRequestService';
+import { useRouter } from 'next/navigation';
 
 export default function App() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [data, setData] = React.useState(mockDonationTableData);
+  const [data, setData] = React.useState<DonationRequest[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedForDelete, setSelectedForDelete] = React.useState<
-    string | null
+    number | null
   >(null);
   const rowsPerPage = 4;
+  const router = useRouter();
+
+  // Fetch data from backend
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const patientId = 4; // Replace with actual patient ID
+        const response = await fetchDonationRequestsByPatient(patientId);
+        setData(response?.data);
+      } catch (err) {
+        console.error('Error fetching donation requests:', err);
+        setError('Failed to fetch donation requests. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const filteredData = React.useMemo(() => {
-    return data.filter((row) =>
-      Object.values(row).some((value) =>
-        value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+    return (Array.isArray(data) ? data : []).filter((row) =>
+      Object.values(row).some(
+        (value) =>
+          value &&
+          value.toString().toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
   }, [searchQuery, data]);
@@ -94,25 +78,31 @@ export default function App() {
     setCurrentPage(1);
   };
 
-  const handleView = (donationId: string) => {
-    console.log('View donation:', donationId);
+  const handleView = (requestId: number) => {
+    console.log('View request:', requestId);
+    router.push(`/patient/donation/edit-request/${requestId}`);
   };
 
-  const handleDeleteClick = (donationId: string) => {
-    console.log('Delete donation:', donationId);
-    setSelectedForDelete(donationId);
+  const handleDeleteClick = (requestId: number) => {
+    console.log('Delete request:', requestId);
+    setSelectedForDelete(requestId);
     onOpen();
   };
 
-  const handleDeleteConfirm = () => {
-    console.log('Delete confirmed:', selectedForDelete);
+  const handleDeleteConfirm = async () => {
     if (selectedForDelete) {
-      setData(data.filter((item) => item.donationId !== selectedForDelete));
-      console.log('Deleted:', data);
-      setSearchQuery('');
-      setSelectedForDelete(null);
-
-      onClose();
+      try {
+        setIsLoading(true);
+        await deleteDonationRequest(selectedForDelete);
+        setData(data.filter((item) => item.requestId !== selectedForDelete));
+        onClose();
+      } catch (err) {
+        console.error('Error deleting donation request:', err);
+        setError('Failed to delete donation request. Please try again later.');
+      } finally {
+        setIsLoading(false);
+        setSelectedForDelete(null);
+      }
     }
   };
 
@@ -130,6 +120,16 @@ export default function App() {
         return 'default';
     }
   };
+
+  if (isLoading && data.length === 0) {
+    return (
+      <div className='flex h-64 items-center justify-center'>Loading...</div>
+    );
+  }
+
+  if (error) {
+    return <div className='p-4 text-red-500'>{error}</div>;
+  }
 
   return (
     <div className='container mx-auto px-4 py-8'>
@@ -150,81 +150,98 @@ export default function App() {
         />
       </div>
 
-      <Table
-        aria-label='Donation requests table'
-        bottomContent={
-          <div className='flex w-full justify-center gap-4'>
-            <Button
-              variant='solid'
-              color='default'
-              isDisabled={currentPage === 1}
-              onPress={() => setCurrentPage((prev) => prev - 1)}
-            >
-              Previous
+      {data.length === 0 && !isLoading ? (
+        <div className='rounded-lg bg-gray-50 p-8 text-center'>
+          <p className='text-gray-500'>No donation requests found.</p>
+          <Link href='/patient/donation/create-request'>
+            <Button color='primary' className='mt-4'>
+              Create Your First Request
             </Button>
-            <Button
-              variant='solid'
-              color='default'
-              isDisabled={currentPage === pages}
-              onPress={() => setCurrentPage((prev) => prev + 1)}
-            >
-              Next
-            </Button>
-          </div>
-        }
-      >
-        <TableHeader>
-          <TableColumn>DONATION ID</TableColumn>
-          <TableColumn>REQUEST NAME</TableColumn>
-          <TableColumn>EXPECTED DATE</TableColumn>
-          <TableColumn>STATUS</TableColumn>
-          <TableColumn>CREATED AT</TableColumn>
-          <TableColumn>ACTIONS</TableColumn>
-        </TableHeader>
-        <TableBody>
-          {paginatedData.map((row) => (
-            <TableRow key={row.donationId}>
-              <TableCell>{row.donationId}</TableCell>
-              <TableCell>{row.requestName}</TableCell>
-              <TableCell>{row.expectedDate}</TableCell>
-              <TableCell>
-                <Chip
-                  color={getStatusColor(row.status)}
-                  variant='flat'
-                  size='sm'
+          </Link>
+        </div>
+      ) : (
+        <Table
+          aria-label='Donation requests table'
+          bottomContent={
+            pages > 1 ? (
+              <div className='flex w-full justify-center gap-4'>
+                <Button
+                  variant='solid'
+                  color='default'
+                  isDisabled={currentPage === 1}
+                  onPress={() => setCurrentPage((prev) => prev - 1)}
                 >
-                  {row.status}
-                </Chip>
-              </TableCell>
-              <TableCell>{row.createdAt}</TableCell>
-              <TableCell>
-                <div className='flex justify-end gap-2'>
-                  {row.status === 'Pending' && (
+                  Previous
+                </Button>
+                <Button
+                  variant='solid'
+                  color='default'
+                  isDisabled={currentPage === pages}
+                  onPress={() => setCurrentPage((prev) => prev + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            ) : null
+          }
+        >
+          <TableHeader>
+            <TableColumn>REQUEST ID</TableColumn>
+            <TableColumn>TITLE</TableColumn>
+            <TableColumn>EXPECTED DATE</TableColumn>
+            <TableColumn>STATUS</TableColumn>
+            <TableColumn>CREATED AT</TableColumn>
+            <TableColumn>ACTIONS</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.map((row) => (
+              <TableRow key={row.requestId}>
+                <TableCell>{row.requestId}</TableCell>
+                <TableCell>{row.title}</TableCell>
+                <TableCell>
+                  {new Date(row.expectedDate).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    color={getStatusColor(row.status)}
+                    variant='flat'
+                    size='sm'
+                  >
+                    {row.status}
+                  </Chip>
+                </TableCell>
+                <TableCell>
+                  {new Date(row.createdAt).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <div className='flex justify-end gap-2'>
+                    {row.status.toLowerCase() === 'pending' && (
+                      <Button
+                        isIconOnly
+                        color='secondary'
+                        variant='light'
+                        size='sm'
+                        onPress={() => handleView(row.requestId)}
+                      >
+                        <PencilLine />
+                      </Button>
+                    )}
                     <Button
                       isIconOnly
-                      color='secondary'
+                      color='danger'
                       variant='light'
                       size='sm'
-                      onPress={() => handleView(row.donationId)}
+                      onPress={() => handleDeleteClick(row.requestId)}
                     >
-                      <PencilLine />
+                      <Trash2 />
                     </Button>
-                  )}
-                  <Button
-                    isIconOnly
-                    color='danger'
-                    variant='light'
-                    size='sm'
-                    onPress={() => handleDeleteClick(row.donationId)}
-                  >
-                    <Trash2 />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
@@ -243,7 +260,11 @@ export default function App() {
                 <Button color='default' variant='light' onPress={onClose}>
                   Cancel
                 </Button>
-                <Button color='danger' onPress={handleDeleteConfirm}>
+                <Button
+                  color='danger'
+                  onPress={handleDeleteConfirm}
+                  isLoading={isLoading}
+                >
                   Delete
                 </Button>
               </ModalFooter>

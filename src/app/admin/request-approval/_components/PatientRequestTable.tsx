@@ -1,5 +1,5 @@
 'use client';
-import React, { SVGProps } from 'react';
+import React, { SVGProps, useEffect, useState } from 'react';
 import {
   Table,
   addToast,
@@ -19,11 +19,19 @@ import {
   User,
   Pagination,
   Selection,
-  ChipProps,
   SortDescriptor,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Textarea
 } from '@heroui/react';
-import { Ban, CircleCheckBig, Eye } from 'lucide-react';
-import { ViewRequestModel } from '@/app/admin/_components';
+import { Ban, Check, Eye } from 'lucide-react';
+import AdminService from '@/service/AdminService';
+import { toast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 export type IconSvgProps = SVGProps<SVGSVGElement> & {
   size?: number;
@@ -146,156 +154,193 @@ export const ChevronDownIcon = ({
   );
 };
 
+interface PrescribedMedicine {
+  medicine: string;
+  amount: number;
+}
+
+interface DonationRequest {
+  requestId: number;
+  patientId: number;
+  title: string;
+  description: string;
+  prescriptionUrl: string;
+  status: string;
+  createdAt: string;
+  expectedDate: string;
+  hospitalName: string;
+  images: string[];
+  documents: string[];
+  prescribedMedicines: PrescribedMedicine[];
+}
+
 export const columns = [
-  { name: 'ID', uid: 'id', sortable: true },
-  { name: 'PATIENT NAME', uid: 'name', sortable: true },
-  { name: 'CITY', uid: 'city', sortable: true },
-  { name: 'REQUEST DATE', uid: 'date', sortable: true },
-  { name: 'EMAIL', uid: 'email' },
-  { name: 'PHONE', uid: 'phone' },
+  { name: 'TITLE', uid: 'title', sortable: true },
+  { name: 'HOSPITAL', uid: 'hospitalName', sortable: true },
+  { name: 'CREATED', uid: 'createdAt', sortable: true },
+  { name: 'NEEDED BY', uid: 'expectedDate', sortable: true },
+  { name: 'STATUS', uid: 'status' },
   { name: 'ACTIONS', uid: 'actions' },
 ];
+
 const INITIAL_VISIBLE_COLUMNS = [
-  'name',
-  'city',
-  'date',
-  'email',
-  'phone',
+  'title',
+  'hospitalName',
+  'createdAt',
+  'expectedDate',
+  'status',
   'actions',
 ];
-export const statusOptions = [
-  { name: 'Active', uid: 'active' },
-  { name: 'Paused', uid: 'paused' },
-  { name: 'Vacation', uid: 'vacation' },
-];
-
-export const users = [
-  {
-    id: 1,
-    name: 'Tony Reichert',
-    city: 'New York',
-    date: '2021-09-01',
-    phone: '123-456-7890',
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026024d',
-    email: 'tony.reichert@example.com',
-    status: 'active',
-  },
-  {
-    id: 2,
-    name: 'Zoey Lang',
-    city: 'Los Angeles',
-    date: '2021-09-02',
-    phone: '987-654-3210',
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
-    email: 'zoey.lang@example.com',
-    status: 'paused',
-  },
-  {
-    id: 3,
-    name: 'Jane Fisher',
-    city: 'Chicago',
-    phone: '555-123-4567',
-    date: '2021-09-03',
-    avatar: 'https://i.pravatar.cc/150?u=a04258114e29026702d',
-    email: 'jane.fisher@example.com',
-    status: 'active',
-  },
-  {
-    id: 4,
-    name: 'William Howard',
-    city: 'Houston',
-    phone: '444-987-6543',
-    date: '2021-09-04',
-    avatar: 'https://i.pravatar.cc/150?u=a048581f4e29026701d',
-    email: 'william.howard@example.com',
-    status: 'vacation',
-  },
-  {
-    id: 5,
-    name: 'Kristen Copper',
-    city: 'Phoenix',
-    phone: '333-222-1111',
-    date: '2021-09-05',
-    avatar: 'https://i.pravatar.cc/150?u=a092581d4ef9026700d',
-    email: 'kristen.cooper@example.com',
-    status: 'active',
-  },
-  {
-    id: 6,
-    name: 'Brian Kim',
-    city: 'San Diego',
-    date: '2021-09-06',
-    phone: '222-333-4444',
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026024d',
-    email: 'brian.kim@example.com',
-    status: 'paused',
-  },
-  {
-    id: 7,
-    name: 'Michael Hunt',
-    city: 'Dallas',
-    phone: '111-222-3333',
-    date: '2021-09-07',
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29027007d',
-    email: 'michael.hunt@example.com',
-    status: 'paused',
-  },
-  {
-    id: 8,
-    name: 'Samantha Brooks',
-    city: 'San Jose',
-    phone: '999-888-7777',
-    date: '2021-09-08',
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e27027008d',
-    email: 'samantha.brooks@example.com',
-    status: 'active',
-  },
-  {
-    id: 9,
-    name: 'Frank Harrison',
-    city: 'Austin',
-    phone: '888-777-6666',
-    date: '2021-09-09',
-    avatar: 'https://i.pravatar.cc/150?img=4',
-    email: 'frank.harrison@example.com',
-    status: 'vacation',
-  },
-  {
-    id: 10,
-    name: 'Emma Adams',
-    city: 'San Francisco',
-    phone: '777-666-5555',
-    date: '2021-09-10',
-    avatar: 'https://i.pravatar.cc/150?img=5',
-    email: 'emma.adams@example.com',
-    status: 'active',
-  },
-];
-
-const statusColorMap: Record<string, ChipProps['color']> = {
-  active: 'success',
-  paused: 'danger',
-  vacation: 'warning',
-};
-
-type User = (typeof users)[0];
 
 export default function PatientRequestTable() {
+  const [donationRequests, setDonationRequests] = useState<DonationRequest[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [filterValue, setFilterValue] = React.useState('');
-  const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
-    new Set([])
-  );
-  const [visibleColumns, setVisibleColumns] = React.useState<Selection>(
-    new Set(INITIAL_VISIBLE_COLUMNS)
-  );
-  const [statusFilter, setStatusFilter] = React.useState<Selection>('all');
+  const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
+  const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-    column: 'name',
-    direction: 'ascending',
+    column: 'createdAt',
+    direction: 'descending',
   });
-
   const [page, setPage] = React.useState(1);
+  const [selectedRequest, setSelectedRequest] = useState<DonationRequest | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [message, setMessage] = useState<string>('');
+  const [actionType, setActionType] = useState<'approve' | 'reject' | null>(null);
+
+  useEffect(() => {
+    fetchPendingDonationRequests();
+  }, []);
+
+  const fetchPendingDonationRequests = async () => {
+    try {
+      setLoading(true);
+      const response = await AdminService.getPendingDonationRequests();
+      
+      if (response.status === 200 && response.data) {
+        setDonationRequests(response.data);
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch pending donation requests',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching pending donation requests:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch pending donation requests',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!selectedRequest) return;
+    
+    try {
+      const response = await AdminService.approveDonationRequest(
+        selectedRequest.requestId, 
+        message || 'Your donation request has been approved.'
+      );
+      
+      if (response.status === 200) {
+        addToast({
+          title: 'Success',
+          description: 'Donation request approved successfully',
+          color: 'success',
+          variant: 'bordered',
+          timeout: 3000,
+          shouldShowTimeoutProgress: true,
+        });
+        // Refresh the list after approval
+        fetchPendingDonationRequests();
+        onClose();
+      } else {
+        addToast({
+          title: 'Error',
+          description: response.message || 'Failed to approve donation request',
+          color: 'danger',
+          variant: 'bordered',
+          timeout: 3000,
+          shouldShowTimeoutProgress: true,
+        });
+      }
+    } catch (error) {
+      console.error('Error approving donation request:', error);
+      addToast({
+        title: 'Error',
+        description: 'Failed to approve donation request',
+        color: 'danger',
+        variant: 'bordered',
+        timeout: 3000,
+        shouldShowTimeoutProgress: true,
+      });
+    }
+  };
+
+  const handleReject = async () => {
+    if (!selectedRequest) return;
+    
+    try {
+      const response = await AdminService.rejectDonationRequest(
+        selectedRequest.requestId,
+        message || 'Your donation request has been rejected.'
+      );
+      
+      if (response.status === 200) {
+        addToast({
+          title: 'Success',
+          description: 'Donation request rejected successfully',
+          color: 'success',
+          variant: 'bordered',
+          timeout: 3000,
+          shouldShowTimeoutProgress: true,
+        });
+        // Refresh the list after rejection
+        fetchPendingDonationRequests();
+        onClose();
+      } else {
+        addToast({
+          title: 'Error',
+          description: response.message || 'Failed to reject donation request',
+          color: 'danger',
+          variant: 'bordered',
+          timeout: 3000,
+          shouldShowTimeoutProgress: true,
+        });
+      }
+    } catch (error) {
+      console.error('Error rejecting donation request:', error);
+      addToast({
+        title: 'Error',
+        description: 'Failed to reject donation request',
+        color: 'danger',
+        variant: 'bordered',
+        timeout: 3000,
+        shouldShowTimeoutProgress: true,
+      });
+    }
+  };
+  
+  const openActionModal = (request: DonationRequest, action: 'approve' | 'reject') => {
+    setSelectedRequest(request);
+    setActionType(action);
+    setMessage(action === 'approve' 
+      ? 'Your donation request has been approved.' 
+      : 'Your donation request has been rejected.');
+    onOpen();
+  };
+
+  const openViewModal = (request: DonationRequest) => {
+    setSelectedRequest(request);
+    setActionType(null);
+    onOpen();
+  };
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -308,24 +353,18 @@ export default function PatientRequestTable() {
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...users];
+    let filteredRequests = [...donationRequests];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>
-        user.name.toLowerCase().includes(filterValue.toLowerCase())
-      );
-    }
-    if (
-      statusFilter !== 'all' &&
-      Array.from(statusFilter).length !== statusOptions.length
-    ) {
-      filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter).includes(user.status)
+      filteredRequests = filteredRequests.filter((request) =>
+        request.title.toLowerCase().includes(filterValue.toLowerCase()) ||
+        request.hospitalName.toLowerCase().includes(filterValue.toLowerCase()) ||
+        request.description.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
 
-    return filteredUsers;
-  }, [users, filterValue, statusFilter]);
+    return filteredRequests;
+  }, [donationRequests, filterValue]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -337,84 +376,253 @@ export default function PatientRequestTable() {
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: User, b: User) => {
-      const first = a[sortDescriptor.column as keyof User] as number;
-      const second = b[sortDescriptor.column as keyof User] as number;
-      const cmp = first < second ? -1 : first > second ? 1 : 0;
-
-      return sortDescriptor.direction === 'descending' ? -cmp : cmp;
+    return [...items].sort((a: DonationRequest, b: DonationRequest) => {
+      const first = a[sortDescriptor.column as keyof DonationRequest];
+      const second = b[sortDescriptor.column as keyof DonationRequest];
+      
+      // Handle date strings
+      if (sortDescriptor.column === 'createdAt' || sortDescriptor.column === 'expectedDate') {
+        const dateA = new Date(first as string).getTime();
+        const dateB = new Date(second as string).getTime();
+        const cmp = dateA < dateB ? -1 : dateA > dateB ? 1 : 0;
+        return sortDescriptor.direction === 'descending' ? -cmp : cmp;
+      }
+      
+      // Handle string comparison
+      if (typeof first === 'string' && typeof second === 'string') {
+        const cmp = first.localeCompare(second);
+        return sortDescriptor.direction === 'descending' ? -cmp : cmp;
+      }
+      
+      // Handle number comparison
+      if (typeof first === 'number' && typeof second === 'number') {
+        const cmp = first < second ? -1 : first > second ? 1 : 0;
+        return sortDescriptor.direction === 'descending' ? -cmp : cmp;
+      }
+      
+      return 0;
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
-    const cellValue = user[columnKey as keyof User];
+  const renderCell = React.useCallback((request: DonationRequest, columnKey: React.Key) => {
+    const cellValue = request[columnKey as keyof DonationRequest];
 
     switch (columnKey) {
-      case 'name':
+      case 'title':
         return (
-          <User
-            avatarProps={{ radius: 'lg', src: user.avatar }}
-            name={cellValue}
-          >
-            {user.email}
-          </User>
+          <div className="flex flex-col">
+            <span className="text-bold">{cellValue as string}</span>
+            <span className="text-small text-default-400">ID: {request.requestId}</span>
+          </div>
         );
-      case 'email':
-        return <Chip>{cellValue}</Chip>;
-      case 'date':
-        return <Chip>{cellValue}</Chip>;
+      case 'createdAt':
+        return <span>{format(new Date(request.createdAt), 'MMM dd, yyyy')}</span>;
+      case 'expectedDate':
+        return <span>{format(new Date(request.expectedDate), 'MMM dd, yyyy')}</span>;
+      case 'status':
+        return (
+          <Chip
+            color={request.status === 'PENDING' ? 'warning' : (request.status === 'ADMIN_APPROVED' ? 'success' : 'danger')}
+            size="sm"
+            variant="flat"
+          >
+            {request.status}
+          </Chip>
+        );
       case 'actions':
         return (
-          <div className='flex items-center justify-end gap-2'>
-            <Tooltip content='Details'>
-              <ViewRequestModel data={user}>
-                <div
-                  typeof='button'
-                  className='cursor-pointer text-lg text-default-400 active:opacity-50'
-                >
-                  <Eye />
-                </div>
-              </ViewRequestModel>
+          <div className='flex items-center justify-center gap-2'>
+            <Tooltip content='View Details'>
+              <span 
+                className='cursor-pointer text-lg text-default-400 active:opacity-50'
+                onClick={() => openViewModal(request)}
+              >
+                <Eye className='text-blue-800' />
+              </span>
             </Tooltip>
-            <div
-              typeof='button'
-              className='cursor-pointer text-lg text-default-400 active:opacity-50'
-              onClick={() => {
-                addToast({
-                  title: 'Request Rejected',
-                  radius: 'full',
-                  color: 'danger',
-                  variant: 'bordered',
-                  timeout: 3000,
-                  shouldShowTimeoutProgress: true,
-                });
-              }}
-            >
-              <Ban className='text-red-700' />
-            </div>
-
-            <div
-              typeof='button'
-              className='cursor-pointer text-lg text-default-400 active:opacity-50'
-              onClick={() => {
-                addToast({
-                  title: 'Request Accepted',
-                  radius: 'full',
-                  color: 'success',
-                  variant: 'bordered',
-                  timeout: 3000,
-                  shouldShowTimeoutProgress: true,
-                });
-              }}
-            >
-              <CircleCheckBig className='text-green-700' />
-            </div>
+            <Tooltip content='Reject'>
+              <span 
+                className='cursor-pointer text-lg text-default-400 active:opacity-50'
+                onClick={() => openActionModal(request, 'reject')}
+              >
+                <Ban className='text-red-800' />
+              </span>
+            </Tooltip>
+            <Tooltip content='Approve'>
+              <span 
+                className='cursor-pointer text-lg text-danger active:opacity-50'
+                onClick={() => openActionModal(request, 'approve')}
+              >
+                <Check className='text-green-800' />
+              </span>
+            </Tooltip>
           </div>
         );
       default:
         return cellValue;
     }
   }, []);
+
+  const renderActionModal = () => {
+    if (!selectedRequest) return null;
+
+    if (actionType) {
+      // Render approve/reject modal
+      return (
+        <ModalContent>
+          <ModalHeader>
+            {actionType === 'approve' ? 'Approve Donation Request' : 'Reject Donation Request'}
+          </ModalHeader>
+          <ModalBody>
+            <div className="mb-4">
+              <h3 className="font-semibold">{selectedRequest.title}</h3>
+              <p className="text-sm text-gray-600">{selectedRequest.description}</p>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Message to Patient:</label>
+              <Textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Enter message for the patient..."
+                className="w-full"
+              />
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="flat" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button 
+              color={actionType === 'approve' ? 'success' : 'danger'}
+              onPress={actionType === 'approve' ? handleApprove : handleReject}
+            >
+              {actionType === 'approve' ? 'Approve' : 'Reject'}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      );
+    } else {
+      // Render view details modal
+      return (
+        <ModalContent>
+          <ModalHeader>Donation Request Details</ModalHeader>
+          <ModalBody>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-xl font-semibold">{selectedRequest.title}</h3>
+                <p className="text-sm text-gray-600">{selectedRequest.hospitalName}</p>
+              </div>
+              
+              <div>
+                <h4 className="font-medium">Description</h4>
+                <p>{selectedRequest.description}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-medium">Created</h4>
+                  <p>{format(new Date(selectedRequest.createdAt), 'MMM dd, yyyy')}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium">Needed By</h4>
+                  <p>{format(new Date(selectedRequest.expectedDate), 'MMM dd, yyyy')}</p>
+                </div>
+              </div>
+              
+              {selectedRequest.prescribedMedicines.length > 0 && (
+                <div>
+                  <h4 className="font-medium">Prescribed Medicines</h4>
+                  <ul className="list-disc pl-5">
+                    {selectedRequest.prescribedMedicines.map((med, index) => (
+                      <li key={index}>{med.medicine} - {med.amount} units</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {selectedRequest.documents.length > 0 && (
+                <div>
+                  <h4 className="font-medium">Documents</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedRequest.documents.map((doc, index) => (
+                      <a 
+                        key={index} 
+                        href={doc} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        Document {index + 1}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {selectedRequest.prescriptionUrl && (
+                <div>
+                  <h4 className="font-medium">Prescription</h4>
+                  <a 
+                    href={selectedRequest.prescriptionUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    View Prescription
+                  </a>
+                </div>
+              )}
+              
+              {selectedRequest.images.length > 0 && (
+                <div>
+                  <h4 className="font-medium">Images</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    {selectedRequest.images.map((img, index) => (
+                      <a 
+                        key={index} 
+                        href={img} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        <img 
+                          src={img} 
+                          alt={`Image ${index + 1}`} 
+                          className="rounded-md object-cover h-24 w-full"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="flat" onPress={onClose}>
+              Close
+            </Button>
+            <Button 
+              color="danger"
+              onPress={() => {
+                setActionType('reject');
+                setMessage('Your donation request has been rejected.');
+              }}
+            >
+              Reject
+            </Button>
+            <Button 
+              color="success"
+              onPress={() => {
+                setActionType('approve');
+                setMessage('Your donation request has been approved.');
+              }}
+            >
+              Approve
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      );
+    }
+  };
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -457,7 +665,7 @@ export default function PatientRequestTable() {
           <Input
             isClearable
             className='w-full sm:max-w-[44%]'
-            placeholder='Search by name...'
+            placeholder='Search by title or hospital...'
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
@@ -492,7 +700,7 @@ export default function PatientRequestTable() {
         </div>
         <div className='flex items-center justify-between'>
           <span className='text-small text-default-400'>
-            Total {users.length} users
+            Total {donationRequests.length} requests
           </span>
           <label className='flex items-center text-small text-default-400'>
             Rows per page:
@@ -510,12 +718,10 @@ export default function PatientRequestTable() {
     );
   }, [
     filterValue,
-    statusFilter,
     visibleColumns,
     onSearchChange,
     onRowsPerPageChange,
-    users.length,
-    hasSearchFilter,
+    donationRequests.length,
   ]);
 
   const bottomContent = React.useMemo(() => {
@@ -555,17 +761,21 @@ export default function PatientRequestTable() {
         </div>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, filteredItems.length, page, pages]);
+
+  if (loading) {
+    return <div>Loading pending donation requests...</div>;
+  }
 
   return (
     <>
       <Table
         isHeaderSticky
-        aria-label='Example table with custom cells, pagination and sorting'
+        aria-label='Pending donation requests table'
         bottomContent={bottomContent}
         bottomContentPlacement='outside'
         classNames={{
-          wrapper: 'max-h-[382px]',
+          wrapper: 'max-h-[600px]',
         }}
         selectedKeys={selectedKeys}
         selectionMode='none'
@@ -586,9 +796,14 @@ export default function PatientRequestTable() {
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody emptyContent={'No users found'} items={sortedItems}>
+        <TableBody 
+          emptyContent={'No donation requests found'} 
+          items={sortedItems}
+          isLoading={loading}
+          loadingContent={<div>Loading...</div>}
+        >
           {(item) => (
-            <TableRow key={item.id}>
+            <TableRow key={item.requestId}>
               {(columnKey) => (
                 <TableCell>{renderCell(item, columnKey)}</TableCell>
               )}
@@ -596,6 +811,10 @@ export default function PatientRequestTable() {
           )}
         </TableBody>
       </Table>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        {renderActionModal()}
+      </Modal>
     </>
   );
 }

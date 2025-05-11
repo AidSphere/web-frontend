@@ -11,9 +11,10 @@ import { UserDetailsType } from '@/components/sideBar/types/userDetailsType';
 import { Toaster } from '@/components/ui/toaster';
 
 const user: UserDetailsType = {
-  name: 'ushan',
-  email: 'u@example.com',
-  Image: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
+  name: 'Kumari Perera',
+  email: 'kumari.perera@gmail.com',
+  Image:
+    'https://res.cloudinary.com/duvfarjid/image/upload/v1746292730/profile-images/onovopi3tu2utyxc6tri.jpg',
 };
 
 export default function PatientLayout({
