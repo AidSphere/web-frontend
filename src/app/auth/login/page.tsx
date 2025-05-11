@@ -4,30 +4,104 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { FaLock, FaEnvelope, FaSun, FaMoon } from 'react-icons/fa';
+import { FaLock, FaEnvelope, FaExclamationTriangle } from 'react-icons/fa';
 import { Card } from '@/components/ui/card';
 import { ThemeModeToggle } from '@/components/ThemeModeToggle';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { Alert } from '@heroui/alert';
 
 const LoginPage = () => {
-  // Theme state (true = dark, false = light)
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // Router for navigation
+  const router = useRouter();
 
-  // Apply theme changes when state changes
-  useEffect(() => {
-    // Update document class for theme
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+  // Get auth context
+  const { login, isAuthenticated, isLoading } = useAuth();
+
+  // State for form data and UI
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Handle login submission with real token authentication
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Reset previous errors
+    setError('');
+    
+    // Validate form inputs
+    if (!email.trim()) {
+      setError('Email is required');
+      return;
     }
-    // Store preference in localStorage
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-  }, [isDarkMode]);
-
-  // Toggle theme function
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
+    
+    if (!password) {
+      setError('Password is required');
+      return;
+    }
+    
+    try {
+      setLoginLoading(true);
+      
+      // Use AuthProvider login
+      const response = await login(email, password);
+      
+      if (!response.success) {
+        throw new Error(response.message || 'Authentication failed');
+      }
+      
+      // Store email if remember me is checked
+      if (rememberMe) {
+        localStorage.setItem('userEmail', email);
+      } else {
+        localStorage.removeItem('userEmail');
+      }
+      
+    } catch (err) {
+      console.error('Login error:', err);
+      
+      // Format common error messages to be more user-friendly
+      let errorMessage = err instanceof Error ? err.message : 'Failed to login. Please try again.';
+      
+      if (errorMessage.includes('Network Error')) {
+        errorMessage = 'Cannot connect to authentication server. Please check your internet connection.';
+      } else if (errorMessage.includes('401') || errorMessage.toLowerCase().includes('invalid credentials')) {
+        errorMessage = 'Invalid email or password. Please try again.';
+      } else if (errorMessage.includes('404')) {
+        errorMessage = 'Authentication service not found. Please contact support.';
+      } else if (errorMessage.includes('500')) {
+        errorMessage = 'Server error. Please try again later or contact support.';
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setLoginLoading(false);
+    }
   };
+
+  // Check for stored credentials on mount
+  useEffect(() => {
+    const storedEmail = localStorage.getItem('userEmail');
+    
+    if (storedEmail) {
+      setEmail(storedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push('/');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading) {
+    return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  }
 
   return (
     <div className='relative min-h-screen'>
@@ -72,7 +146,18 @@ const LoginPage = () => {
             </div>
 
             <Card className='border-sidebar-border p-6 shadow-lg'>
-              <form className='space-y-6'>
+              {error && (
+                <Alert 
+                  variant="faded" 
+                  color="danger"
+                  title="Login Failed" 
+                  description={error}
+                  className="mb-6"
+                  icon={<FaExclamationTriangle />}
+                />
+              )}
+              
+              <form className='space-y-6' onSubmit={handleLogin}>
                 <div className='space-y-4'>
                   <div className='space-y-2'>
                     <label
@@ -89,10 +174,17 @@ const LoginPage = () => {
                         id='email'
                         name='email'
                         type='email'
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          if (error) setError('');
+                        }}
                         autoComplete='email'
                         required
-                        className='bg-background pl-10 focus:border-primary'
-                        placeholder='doctor@hospital.com'
+                        className={`bg-background pl-10 focus:border-primary ${
+                          error && !email.trim() ? 'border-red-500' : ''
+                        }`}
+                        placeholder='your@email.com'
                       />
                     </div>
                   </div>
@@ -120,9 +212,16 @@ const LoginPage = () => {
                         id='password'
                         name='password'
                         type='password'
+                        value={password}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          if (error) setError('');
+                        }}
                         autoComplete='current-password'
                         required
-                        className='bg-background pl-10 focus:border-primary'
+                        className={`bg-background pl-10 focus:border-primary ${
+                          error && !password ? 'border-red-500' : ''
+                        }`}
                         placeholder='••••••••'
                       />
                     </div>
@@ -133,6 +232,8 @@ const LoginPage = () => {
                       id='remember-me'
                       name='remember-me'
                       type='checkbox'
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
                       className='h-4 w-4 rounded border-sidebar-border text-primary focus:ring-primary'
                     />
                     <label
@@ -146,10 +247,12 @@ const LoginPage = () => {
 
                 <div>
                   <Button
+                    type='submit'
                     className='w-full bg-primary text-white hover:bg-primary-600'
                     size='lg'
+                    disabled={loginLoading}
                   >
-                    Sign in
+                    {loginLoading ? 'Signing in...' : 'Sign in'}
                   </Button>
                 </div>
               </form>
@@ -157,14 +260,30 @@ const LoginPage = () => {
 
             <div className='text-center'>
               <p className='text-foreground/70 text-sm'>
-                Don&apos;t have an account?{' '}
+                Don&apos;t have an account?
+              </p>
+              <div className='mt-2 flex flex-wrap justify-center gap-2 text-sm'>
+                <Link
+                  href='/auth/donor'
+                  className='font-medium text-primary transition-colors hover:text-primary-600'
+                >
+                  Register as Donor
+                </Link>
+                <span className='text-gray-400'>•</span>
                 <Link
                   href='/importer/register'
                   className='font-medium text-primary transition-colors hover:text-primary-600'
                 >
-                  Register here
+                  Register as Drug Importer
                 </Link>
-              </p>
+                <span className='text-gray-400'>•</span>
+                <Link
+                  href='/auth/patient/register'
+                  className='font-medium text-primary transition-colors hover:text-primary-600'
+                >
+                  Register as Patient
+                </Link>
+              </div>
             </div>
           </div>
         </div>
